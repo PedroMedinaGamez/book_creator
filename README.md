@@ -28,12 +28,24 @@ Una skill es un conjunto reutilizable de instrucciones que ayuda a un asistente 
 
 Respeta los límites de cada skill: por ejemplo, el formateador no corrige texto y el compilador no redibuja arte.
 
+## Agente de aventura por continente
+
+El agente personalizado **Bo Continent Adventure** está en `.github/agents/bo-continent-adventure.agent.md`. Úsalo desde el selector de agentes de Copilot para coordinar las dos primeras skills:
+
+1. Ejecuta `continental-explorer` y presenta el dossier completo con fuentes y JSON.
+2. Se detiene y espera tu aprobación explícita.
+3. Solo después de que apruebes, usa el dossier aprobado con `bo-adventure-storyteller` para crear el plan completo página por página.
+
+Si solicitas cambios al dossier, el agente lo revisa y vuelve a pedir aprobación; no debe comenzar la historia antes de recibirla.
+
 ## Estructura
 
 ```text
 book_creator/
 ├── README.md
 └── .github/
+    ├── agents/
+    │   └── bo-continent-adventure.agent.md
     └── skills/
         ├── bo-adventure-storyteller/
         │   └── SKILL.md
