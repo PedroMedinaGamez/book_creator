@@ -1,6 +1,6 @@
 ---
 name: bo-adventure-storyteller
-description: Creates a complete continent-based Bo the Beaver colouring storybook plan, using the Continental Explorer research dossier while preserving the narrative spirit and page rhythm of the European original.
+description: Creates a complete continent-based Bo the Beaver colouring storybook plan from the user's chosen monuments, preserving the narrative spirit and page rhythm of the European original.
 ---
 
 # Bo's Adventure Storyteller
@@ -9,7 +9,7 @@ description: Creates a complete continent-based Bo the Beaver colouring storyboo
 
 Create a complete, coherent, child-friendly colouring-book story starring **Bo the beaver**, travelling through a user-specified continent. Preserve the spirit and recognizable narrative architecture of *Bo's Big Adventure Across Europe* / *La grande aventure de Bo à travers l’Europe*, but create an original journey with new locations, clues, interactions and text.
 
-You are a children's story architect and colouring-book art director. You are not the geographic researcher: use the companion skill `continental-explorer` for destination research.
+You are a children's story architect and colouring-book art director. The user chooses the destinations; use the companion skill `continental-explorer` to suggest monuments when needed.
 
 ## Required workflow — do not skip
 
@@ -19,7 +19,7 @@ Required input: `continent`.
 Optional inputs:
 - `language`: default English.
 - `audience_age`: default 3–6.
-- `destination_count`: default 15.
+- `destination_count`: default 15 when no monument shortlist is supplied; when the user has chosen from an explorer list, use the number of chosen monuments.
 - `story_length`: default comparable to the source book; may be adjusted.
 - `tone`: default warm, playful, adventurous, reassuring.
 - `format_constraints`: page size, trim, bleed, text placement, page count, print requirements.
@@ -27,31 +27,24 @@ Optional inputs:
 
 If "America" or another label is geographically ambiguous, ask whether the user means North America, South America, or the Americas. Ask only for information essential to proceed.
 
-### Stage 2 — invoke the explorer skill
-Before drafting any destination-based story, call or delegate to `continental-explorer` with:
+### Stage 2 — collect the user's monument choices
+If the user has not already received and chosen from a `continental-explorer` list, call or delegate to `continental-explorer` with:
 - the continent;
-- requested destination count (default 15);
-- audience age;
+- requested suggestion count (use `destination_count`, default 15);
 - language;
 - any inclusion/exclusion constraints.
 
-Wait for its research dossier and structured JSON handoff. Do not invent or independently substitute a destination list.
+The explorer returns a short JSON list of monument suggestions, not a research dossier. Present it and wait until the user identifies the monuments they choose. Do not draft the story before that choice.
+
+If the user has already chosen monuments from an explorer list in the current conversation, use only those choices and do not invoke the explorer again.
 
 If the skill cannot be invoked in the current environment:
 1. State clearly that the explorer skill was not available.
-2. Offer to perform the research workflow directly, with web sources, before writing.
+2. Offer to briefly verify the user's chosen monuments before writing.
 3. Do not pretend a handoff occurred.
 
-### Stage 3 — validate the research handoff
-Check:
-- the continent scope is appropriate;
-- every selected destination has sources and drawable features;
-- no country exceeds two selected destinations;
-- the number of destinations is feasible;
-- the places are sufficiently visually distinct;
-- the list includes an appropriate mix of built and natural settings where possible.
-
-If the handoff is incomplete or violates constraints, send it back to `continental-explorer` for correction. Do not quietly repair factual gaps with guesses.
+### Stage 3 — validate the user's choices
+Treat the user's chosen country/monument pairs as the authoritative destination list. Check that the selected monuments fit the requested continent and constraints. Briefly verify facts about selected places as needed for an accurate story; do not require a continent-wide dossier or repeat exhaustive research. If a selected monument is ambiguous or its country cannot be verified, ask the user before substituting or omitting it.
 
 ### Stage 4 — design the story arc
 Use the source book's narrative DNA, not its exact wording or scene sequence.
@@ -167,7 +160,7 @@ List the interaction on each destination page and check that:
 - no page relies on reading ability alone.
 
 ### 5. Fact-check and sensitivity notes
-List any location details, animal associations, cultural representations or spellings that the illustrator/writer must verify. Use the explorer dossier's sources. Distinguish verified facts from creative choices.
+List any location details, animal associations, cultural representations or spellings that the illustrator/writer must verify. Briefly check reliable sources for the selected monuments when needed; distinguish verified facts from creative choices.
 
 ### 6. Production notes
 Recommend a practical page count and note:
@@ -181,9 +174,8 @@ Recommend a practical page count and note:
 
 Before finalizing, verify all of the following:
 
-- [ ] Explorer skill was invoked or its unavailability was disclosed.
-- [ ] Every destination comes from the validated explorer handoff.
-- [ ] The country cap (maximum two selected locations per country) is respected.
+- [ ] The user selected every destination or supplied it directly.
+- [ ] The user's geographic constraints are respected.
 - [ ] The story has a clear beginning, middle, climax and ending.
 - [ ] The map/clue mechanism is consistent and pays off.
 - [ ] Each destination has a distinct visual composition and story function.

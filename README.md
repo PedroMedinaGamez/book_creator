@@ -10,9 +10,10 @@ Una skill es un conjunto reutilizable de instrucciones que ayuda a un asistente 
 
 | Skill | Para qué sirve |
 |---|---|
-| `continental-explorer` | Investiga lugares icónicos, reconocibles y aptos para colorear de un continente. Prepara una selección con fuentes y un dossier de investigación para planear la aventura. |
-| `bo-adventure-storyteller` | Usa el dossier para crear el plan de una historia de Bo ambientada en un continente, manteniendo el espíritu narrativo y el ritmo por páginas del libro europeo original. |
+| `continental-explorer` | Sugiere rápidamente monumentos reconocidos en un continente y devuelve solo un JSON sencillo para que el usuario elija cuáles incluir. |
+| `bo-adventure-storyteller` | Usa los monumentos elegidos por el usuario para crear el plan de una historia de Bo, manteniendo el espíritu narrativo y el ritmo por páginas del libro europeo original. |
 | `bo-page-artist` | Crea la ilustración en blanco y negro para colorear de una página, siguiendo la referencia maestra de Bo. No añade texto, marcos ni diseño de página y espera aprobación antes de pasar a la ilustración siguiente. |
+| `bo-image-generator` | Envía el prompt final del artista a la API de imágenes de OpenAI, descarga el PNG y lo guarda con versiones en `images/<continente>/<país>/<monumento>_vN.png`. |
 | `bo-professional-translator` | Transcrea los textos aprobados a otro idioma y variante regional. Conserva el significado, la voz infantil y el ritmo de lectura; entrega una tabla alineada por página. |
 | `bo-page-compiler` | Compone una ilustración aprobada con el texto narrativo exacto en una página lista para impresión, con marcos, márgenes y tipografía. No crea ni redibuja ilustraciones. |
 | `bo-page-quality-auditor` | Revisa cada página compilada: fidelidad de la ilustración, consistencia de Bo, exactitud de los lugares y textos, marcos, monocromo y dimensiones de impresión. Emite un resultado de aprobado o rechazado y no aprueba si quedan defectos críticos. |
@@ -20,9 +21,9 @@ Una skill es un conjunto reutilizable de instrucciones que ayuda a un asistente 
 
 ## Flujo de trabajo sugerido
 
-1. **Investigar:** `continental-explorer` crea el dossier del continente.
-2. **Planear la historia:** `bo-adventure-storyteller` convierte el dossier en un plan de páginas.
-3. **Producir cada página:** `bo-page-artist` genera la ilustración y espera su aprobación. Si se necesita otro idioma, `bo-professional-translator` prepara los textos aprobados para la traducción.
+1. **Elegir monumentos:** `continental-explorer` devuelve una lista breve en JSON; el usuario elige los lugares.
+2. **Planear la historia:** `bo-adventure-storyteller` crea el plan de páginas usando solo los monumentos elegidos.
+3. **Producir cada página:** `bo-page-artist` prepara el prompt y `bo-image-generator` solicita la ilustración, guardándola en `images/` con un número de versión. El artista revisa la imagen y espera su aprobación. La API requiere `OPENAI_API_KEY` y puede facturarse aparte de ChatGPT; configura la clave localmente y no la compartas en el chat. Si se necesita otro idioma, `bo-professional-translator` prepara los textos aprobados para la traducción.
 4. **Componer y revisar:** `bo-page-compiler` monta cada página y `bo-page-quality-auditor` verifica el resultado. Corrige cualquier defecto y vuelve a auditar antes de darla por aprobada.
 5. **Preparar el libro:** una vez aprobadas las páginas, `bo-kdp-formatter` genera el PDF interior para KDP.
 
@@ -32,11 +33,11 @@ Respeta los límites de cada skill: por ejemplo, el formateador no corrige texto
 
 El agente personalizado **Bo Continent Adventure** está en `.github/agents/bo-continent-adventure.agent.md`. Úsalo desde el selector de agentes de Copilot para coordinar las dos primeras skills:
 
-1. Ejecuta `continental-explorer` y presenta el dossier completo con fuentes y JSON.
-2. Se detiene y espera tu aprobación explícita.
-3. Solo después de que apruebes, usa el dossier aprobado con `bo-adventure-storyteller` para crear el plan completo página por página.
+1. Ejecuta `continental-explorer` y presenta las sugerencias como JSON breve.
+2. Se detiene y espera a que elijas los monumentos.
+3. Usa únicamente los lugares elegidos con `bo-adventure-storyteller` para crear el plan completo página por página.
 
-Si solicitas cambios al dossier, el agente lo revisa y vuelve a pedir aprobación; no debe comenzar la historia antes de recibirla.
+Si pides más opciones o cambias las restricciones, actualiza la lista y vuelve a esperar tu elección. El agente no debe comenzar la historia antes de que elijas.
 
 ## Estructura
 
@@ -49,6 +50,11 @@ book_creator/
     └── skills/
         ├── bo-adventure-storyteller/
         │   └── SKILL.md
+        ├── bo-image-generator/
+        │   ├── SKILL.md
+        │   └── scripts/
+        │       ├── generate_image.py
+        │       └── test_generate_image.py
         ├── bo-kdp-formatter/
         │   └── SKILL.md
         ├── bo-page-artist/

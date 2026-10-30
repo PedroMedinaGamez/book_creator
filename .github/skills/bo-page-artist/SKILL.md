@@ -1,6 +1,6 @@
 ---
 name: bo-page-artist
-description: Creates only the clean black-and-white colouring illustration for one Bo storybook page using ChatGPT image generation and the repository's Bo_image.jpg master reference. It adds no text, frames, borders, page layout or typography and waits for approval before moving to the next illustration.
+description: Creates and presents the final prompt for one clean black-and-white Bo storybook illustration for the user to generate in ChatGPT, using the repository's Bo_image.jpg as reference when Bo appears. Waits for approval before moving to the next illustration.
 ---
 
 # Bo Page Artist
@@ -11,7 +11,7 @@ Create the **illustration artwork only** for the current page in a Bo the Beaver
 
 This skill is the artistic production stage. It must not design or assemble the finished page. A separate skill, `bo-page-compiler`, is responsible for adding the frames, exact story text, margins and print layout.
 
-Use ChatGPT image generation. The repository file `Bo_image.jpg` is the authoritative visual reference for Bo and must be attached as an image reference whenever Bo appears.
+Prepare and present the complete illustration prompt for the user to copy into ChatGPT. The user handles image generation and download manually. Do not use an image-generation API. The repository file `Bo_image.jpg` is the authoritative visual reference for Bo and must be attached in ChatGPT whenever Bo appears.
 
 ## Inputs
 
@@ -34,14 +34,12 @@ If the narrative row or research details are missing, request them. Do not inven
 1. Select the first page that requires an illustration, or the page number specified by the user.
 2. Read the current narrative row and relevant explorer details.
 3. Locate the exact repository file `Bo_image.jpg`.
-4. Attach/use `Bo_image.jpg` as the image-generation reference if Bo is present.
-5. Generate exactly one illustration-only image.
-6. Inspect it against the artistic quality gate.
-7. If it fails, revise and regenerate the same illustration.
-8. Present the illustration for review and ask for approval.
-9. Stop. Do not generate another page until the user explicitly approves this illustration.
-10. On requested changes, revise only the current illustration and request approval again.
-11. On explicit approval, proceed to the next page's illustration.
+4. Build the complete page-specific prompt from the template below.
+5. Present the exact, complete prompt in a single code block for easy copying. Do not require the user to run a script or download/import an image.
+6. If Bo appears, remind the user to attach `Bo_image.jpg` in ChatGPT as the visual reference.
+7. Stop and let the user generate the image in ChatGPT. Do not claim to have generated or inspected an image that the user has not provided.
+8. If the user later shares the generated image and asks for review, inspect it against the artistic quality gate. If it fails or the user requests changes, revise only the prompt for the current illustration.
+9. Do not proceed to another page until the user explicitly approves the current illustration.
 
 Never interpret silence or a request for changes as approval. Approval applies only to the current illustration.
 
@@ -104,7 +102,7 @@ No colour, grey tones, shading, gradients, hatching, realistic textures, fur/fea
 
 ## Prompt template
 
-Use ChatGPT image generation with `Bo_image.jpg` attached as the reference when Bo appears.
+Present the completed prompt for the user to paste into ChatGPT verbatim, attaching `Bo_image.jpg` there as the reference when Bo appears. Do not send an unfinished template or silently alter the prompt. After presenting it, stop and wait for the user.
 
 Create the **[PAGE / DESTINATION NAME]** illustration for a children's colouring book for ages 3 to 6.
 
