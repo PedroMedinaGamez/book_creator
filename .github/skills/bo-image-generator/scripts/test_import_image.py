@@ -25,14 +25,32 @@ class ImportImageTests(unittest.TestCase):
 
             self.assertEqual(
                 first.relative_to(output_root).as_posix(),
-                "asia/japan/himeji-castle_v1.png",
+                "asia/japan/v1/himeji-castle.png",
             )
             self.assertEqual(
                 second.relative_to(output_root).as_posix(),
-                "asia/japan/himeji-castle_v2.png",
+                "asia/japan/v2/himeji-castle.png",
             )
             self.assertEqual(first.read_bytes(), PNG_BYTES)
             self.assertEqual(second.read_bytes(), PNG_BYTES)
+
+    def test_different_monuments_share_version_directory_without_colliding(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            source = root / "chatgpt-download.png"
+            source.write_bytes(PNG_BYTES)
+            output_root = root / "images"
+
+            first = import_image.import_next_version(
+                source, output_root, "Asia", "Japan", "Himeji Castle"
+            )
+            second = import_image.import_next_version(
+                source, output_root, "Asia", "Japan", "Mount Fuji"
+            )
+
+            self.assertEqual(first.parent, second.parent)
+            self.assertEqual(first.parent.name, "v1")
+            self.assertEqual(second.name, "mount-fuji.png")
 
     def test_rejects_non_png_without_creating_output(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:

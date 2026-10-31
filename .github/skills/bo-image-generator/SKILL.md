@@ -4,7 +4,7 @@ description: "Entrega al usuario el prompt final preparado por bo-page-artist pa
 argument-hint: "Prompt final de bo-page-artist"
 ---
 
-# Bo Image Generator
+# Generación manual de imagen
 
 ## Objetivo
 
@@ -19,9 +19,9 @@ Entregar el prompt final de `bo-page-artist` para que el usuario lo copie en Cha
 
 Si el prompt está incompleto o aún contiene campos entre corchetes, pide a `bo-page-artist` que lo complete antes de entregarlo.
 
-## Importar una imagen (opcional)
+## Importar una imagen manual (opcional)
 
-Solo si el usuario vuelve con una imagen PNG descargada y pide expresamente guardarla en el repositorio, impórtala sin sobrescribir versiones existentes:
+Si el usuario generó la imagen manualmente en ChatGPT y pide guardarla en el repositorio, impórtala sin sobrescribir versiones existentes:
 
 ```powershell
 python .github\skills\bo-image-generator\scripts\import_image.py `
@@ -31,4 +31,4 @@ python .github\skills\bo-image-generator\scripts\import_image.py `
   --monument "<monumento>"
 ```
 
-El script guarda el archivo en `images/<continente>/<país>/<monumento>_vN.png`. Esta importación es opcional; el flujo principal termina al entregar el prompt.
+El script guarda cada versión en `images/<continente>/<país>/vN/<monumento>.png`. Usa `creadora-imagen-ia` para generación automatizada con la API de OpenAI; esta skill no hace llamadas API.

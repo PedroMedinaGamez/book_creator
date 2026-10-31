@@ -12,22 +12,23 @@ Una skill es un conjunto reutilizable de instrucciones que ayuda a un asistente 
 |---|---|
 | `continental-explorer` | Sugiere rápidamente monumentos reconocidos en un continente y devuelve solo un JSON sencillo para que el usuario elija cuáles incluir. |
 | `bo-adventure-storyteller` | Usa los monumentos elegidos por el usuario para crear el plan de una historia de Bo, manteniendo el espíritu narrativo y el ritmo por páginas del libro europeo original. |
-| `bo-page-artist` | Crea la ilustración en blanco y negro para colorear de una página, siguiendo la referencia maestra de Bo. No añade texto, marcos ni diseño de página y espera aprobación antes de pasar a la ilustración siguiente. |
-| `bo-image-generator` | Envía el prompt final del artista a la API de imágenes de OpenAI, descarga el PNG y lo guarda con versiones en `images/<continente>/<país>/<monumento>_vN.png`. |
+| `bo-page-artist` | Diseña un prompt detallado y preciso para la ilustración, con composición, exactitud del lugar, referencia de Bo y restricciones visuales. Revisa la imagen generada y espera aprobación. |
+| `creadora-imagen-ia` | Envía el prompt aprobado y `Bo_image.jpg` a la API de imágenes de OpenAI, descarga el PNG y lo guarda sin sobrescribir en `images/<continente>/<país>/vN/<monumento>.png`. |
+| `bo-image-generator` | Entrega el prompt para generación manual en ChatGPT y puede importar el PNG descargado manualmente. No llama a ninguna API. |
 | `bo-professional-translator` | Transcrea los textos aprobados a otro idioma y variante regional. Conserva el significado, la voz infantil y el ritmo de lectura; entrega una tabla alineada por página. |
-| `bo-page-compiler` | Compone una ilustración aprobada con el texto narrativo exacto en una página lista para impresión, con marcos, márgenes y tipografía. No crea ni redibuja ilustraciones. |
+| `bo-page-compiler` | Prepara un prompt completo para maquetar en ChatGPT una ilustración aprobada con el texto exacto, siguiendo la plantilla fija de marcos, márgenes y tipografía. No genera ni redibuja la ilustración. |
 | `bo-page-quality-auditor` | Revisa cada página compilada: fidelidad de la ilustración, consistencia de Bo, exactitud de los lugares y textos, marcos, monocromo y dimensiones de impresión. Emite un resultado de aprobado o rechazado y no aprueba si quedan defectos críticos. |
-| `bo-kdp-formatter` | Convierte páginas aprobadas en un PDF interior listo para KDP. El tamaño predeterminado es 8.5 × 11 pulgadas; puede usar otro tamaño solicitado. No modifica el arte ni los textos. |
+| `bo-kdp-formatter` | Reúne en un PDF interior para KDP las páginas PNG finales, maquetadas con el prompt del compilador y aprobadas por el auditor. No modifica el diseño, el arte ni los textos. |
 
 ## Flujo de trabajo sugerido
 
 1. **Elegir monumentos:** `continental-explorer` devuelve una lista breve en JSON; el usuario elige los lugares.
 2. **Planear la historia:** `bo-adventure-storyteller` crea el plan de páginas usando solo los monumentos elegidos.
-3. **Producir cada página:** `bo-page-artist` prepara el prompt y `bo-image-generator` solicita la ilustración, guardándola en `images/` con un número de versión. El artista revisa la imagen y espera su aprobación. La API requiere `OPENAI_API_KEY` y puede facturarse aparte de ChatGPT; configura la clave localmente y no la compartas en el chat. Si se necesita otro idioma, `bo-professional-translator` prepara los textos aprobados para la traducción.
-4. **Componer y revisar:** `bo-page-compiler` monta cada página y `bo-page-quality-auditor` verifica el resultado. Corrige cualquier defecto y vuelve a auditar antes de darla por aprobada.
-5. **Preparar el libro:** una vez aprobadas las páginas, `bo-kdp-formatter` genera el PDF interior para KDP.
+3. **Producir cada página:** `bo-page-artist` diseña el prompt y `creadora-imagen-ia` envía el prompt y `Bo_image.jpg` a la API de OpenAI, descarga el PNG y lo guarda como `images/<continente>/<país>/v1/<monumento>.png`. Las correcciones crean `v2`, `v3`, etc. La API requiere `OPENAI_API_KEY` local y puede facturarse aparte de ChatGPT; confirma cada generación, configura la clave localmente y no la compartas en el chat. El artista revisa la imagen y espera aprobación. Si se necesita otro idioma, `bo-professional-translator` prepara los textos aprobados para la traducción. Para generar manualmente en ChatGPT, usa `bo-image-generator`.
+4. **Maquetar y revisar:** `bo-page-compiler` prepara un prompt completo por página. Adjunta en ChatGPT la ilustración aprobada y copia el prompt para obtener el PNG maquetado. `bo-page-quality-auditor` verifica la página; corrige cualquier defecto y vuelve a auditar antes de aprobarla.
+5. **Preparar el libro:** cuando todas las páginas PNG hayan pasado la auditoría, `bo-kdp-formatter` las reúne sin rediseñarlas en el PDF interior para KDP.
 
-Respeta los límites de cada skill: por ejemplo, el formateador no corrige texto y el compilador no redibuja arte.
+Respeta los límites de cada skill: por ejemplo, el compilador prepara el prompt pero no afirma haber generado la página; el formateador solo ensambla páginas finales aprobadas y no corrige texto ni altera su diseño.
 
 ## Agente de aventura por continente
 
@@ -53,8 +54,13 @@ book_creator/
         ├── bo-image-generator/
         │   ├── SKILL.md
         │   └── scripts/
-        │       ├── generate_image.py
-        │       └── test_generate_image.py
+        │       ├── import_image.py
+        │       └── test_import_image.py
+        ├── creadora-imagen-ia/
+        │   ├── SKILL.md
+        │   └── scripts/
+        │       ├── create_image.py
+        │       └── test_create_image.py
         ├── bo-kdp-formatter/
         │   └── SKILL.md
         ├── bo-page-artist/

@@ -1,19 +1,20 @@
 ---
 name: bo-page-compiler
-description: Assembles an approved Bo colouring illustration and its exact narrative text into a print-ready portrait page, adding the upper illustration frame, lower text frame, margins and typography. It does not generate or redraw artwork.
+description: Creates a complete, copy-ready ChatGPT prompt to lay out an approved Bo illustration and its exact story text as a KDP-sized page, without redrawing the artwork or changing the text.
 ---
 
 # Bo Page Compiler
 
 ## Mission
 
-Create the **finished printable page** by combining:
+Create a **complete, page-specific prompt** for the user to paste into ChatGPT, combining:
 1. an approved illustration-only asset from `bo-page-artist`;
 2. the matching page row and exact child-facing text from `bo-adventure-storyteller`.
 
-This skill is a layout and typesetting stage. It must not generate, redraw, retouch or creatively alter the illustration. It must not invent or rewrite the story text.
+The user attaches the approved illustration and runs the prompt in ChatGPT to produce the finished page. This skill prepares the prompt; it does not itself generate or export the finished image. Do not call an image-generation API.
 
-The final page should match the interior-page structure of the supplied Bo book: one framed illustration above and a separate framed text panel below.
+The prompt must describe one consistent interior-page template: one framed illustration above and a separate framed text panel below.
+Write the prompt in the user's language (Spanish by default), while preserving the approved page text exactly in its source language.
 
 ## Required inputs
 
@@ -22,17 +23,18 @@ The final page should match the interior-page structure of the supplied Bo book:
 - Exact story text for that page.
 - Page number and page role.
 - Print specification (defaults below).
-- Source-book interior PDF or approved layout reference, when available.
+- Approved layout reference, when available.
 
 If the illustration has not been approved by the user, do not compile it as final. If the exact text is missing, request it rather than reconstructing it.
 
 ## Separation of responsibilities
 
 - `bo-page-artist` creates artwork only.
-- `bo-page-compiler` creates page layout and typography only.
+- `bo-page-compiler` creates the prompt for page layout and typography; it does not create the page image.
 - `bo-adventure-storyteller` owns the exact story text and narrative content.
+- `bo-kdp-formatter` assembles final, quality-approved page PNGs into the book's print-ready PDF.
 
-Never ask the image-generation model to render the final text or page frames. Use deterministic layout/typesetting tools for the final composition.
+The user specifically wants to use a ChatGPT prompt for page composition. Make the prompt explicit that the supplied illustration is final and must be placed, not regenerated. Do not claim that a prompt guarantees exact text or print metadata: the returned page must pass the quality audit and technical preflight before it is treated as print-ready.
 
 ## Default print specification
 
@@ -41,45 +43,36 @@ Never ask the image-generation model to render the final text or page frames. Us
 - Target raster page: **2550 × 3300 px**.
 - Background: pure white.
 - Interior printing: black ink line art and black text.
-- Safe outer margin: at least **0.5 inch** on every side (150 px at 300 DPI).
+- Outer page margin: approximately **0.22 inch** on every side.
 - No bleed by default.
 - Two separate rectangular frames:
-  - upper illustration frame: approximately 70% of the usable page height;
-  - lower text frame: approximately 25% of the usable page height;
-  - remaining usable height: gap and spacing.
-- Both frames must align to the same left and right edges.
-- Use a clean white gap between the frames.
-- Use a thin, consistent black frame stroke similar to the supplied book.
+  - both frames approximately **5.93 inches wide**, centered and aligned;
+  - upper illustration frame approximately **7.83 inches high**;
+  - lower text frame approximately **2.65 inches high**;
+  - white gap approximately **0.08 inch**.
+- Rounded corners, matching between frames; uniform black outline approximately 2–2.5 pt at print size.
 
-Interpret the 70% / 25% proportions as proportions of the usable interior height after safe margins, not the full trim height. Keep the two frames and gap within the safe area. If exact dimensions from a supplied KDP template or approved layout reference are provided, those dimensions take precedence.
+These are a coherent starting geometry: the frame heights plus gap total 10.56 inches, leaving 0.22-inch top and bottom margins on an 11-inch page. Do not combine incompatible percentages or let frames exceed the canvas. If the user supplies an approved reference template, follow it while preserving the exact requested page size.
 
 ### Default geometry at 300 DPI
 
-For an 8.5 × 11 inch page:
-- canvas: 2550 × 3300 px;
-- outer safe margin: 150 px;
-- usable width: 2250 px;
-- usable height: 3000 px;
-- frame left/right: x = 150 to 2400 px;
-- usable vertical area: y = 150 to 3150 px.
+For the default 8.5 × 11 inch page, the prompt should specify a 2550 × 3300 px portrait canvas, with approximate geometry:
+- outer margins: 66 px (0.22 inch);
+- centered frame width: 1779 px (5.93 inches);
+- upper frame height: 2349 px (7.83 inches);
+- gap: 24 px (0.08 inch);
+- lower text frame height: 795 px (2.65 inches).
 
-Allocate the usable vertical area approximately as:
-- upper illustration frame: 70% = 2100 px;
-- inter-frame gap: 5% = 150 px;
-- lower text frame: 25% = 750 px.
-
-This is a starting geometry. Adjust the split slightly only when necessary to fit the approved text legibly; preserve the two-frame structure and safe margins. Never allow frames to touch or overlap.
+Keep both frames inside the canvas, with equal widths and a consistent gap. These measurements take precedence over percentage descriptions if those would conflict.
 
 ## Illustration placement
 
 - Place the approved artwork inside the upper frame.
 - Preserve the artwork's aspect ratio; do not stretch it.
-- Fit it inside the frame using a contain/letterbox strategy by default.
-- Keep the background white so it blends into the page.
-- Do not crop Bo, animals, landmarks or important environmental details.
-- If the artwork aspect ratio is unsuitable, ask the artist skill to regenerate at the correct aspect ratio rather than distorting or aggressively cropping it.
-- Do not add new objects, textures, shadows or colour.
-- Keep the frame line outside the artwork content so it does not cover important outlines.
+- Preserve the original background and line art.
+- Maximize visible image size with a minimal, even inset of approximately 0.05 inch.
+- Do not stretch, distort, crop, redraw, regenerate, retouch, recolour, add to or remove anything.
+- If it cannot fit without cropping or distortion, stop and request a correctly proportioned approved illustration.
 
 ## Text typesetting
 
@@ -97,74 +90,76 @@ Do not paraphrase, translate, correct, shorten, expand or add any words.
 - Plain white background.
 - Separate rectangular frame.
 - No illustration, decorative graphics or watermark behind the words.
-- Large, rounded, friendly children's font in solid black.
-- Left aligned.
-- Comfortable line spacing and paragraph spacing.
+- Large, rounded, friendly children's font in solid black, centered horizontally.
+- Target 15–17 pt at 300 DPI, with comfortable 1.3–1.4 line spacing and paragraph spacing.
 - Sound words should be italicized when indicated by the source text.
 - Text must remain fully inside the panel with adequate padding.
 - Use a font with full support for the page language and its accents.
-- Keep text readable at print size; never solve overflow by shrinking it below a child-friendly readable size.
+- Use the largest size that fits legibly; never omit, rewrite or shrink excessively to conceal overflow.
 
 If the text does not fit:
 1. try sensible line wrapping and paragraph spacing adjustments;
-2. use a slightly smaller but still legible font within the available panel;
-3. if it still does not fit, stop and request an editorially shortened approved text from the user/storyteller. Never silently edit it.
+2. if it still does not fit legibly, stop and request an editorially shortened approved text from the user/storyteller. Never silently edit it.
 
 ### Exact text rendering
-Do not use image generation for lettering. Render text with a deterministic typography/layout engine so that every word and punctuation mark is preserved. Verify the extracted or rendered text against the source string where tooling allows.
+The prompt must emphasize that every word and punctuation mark is authoritative and exact. Treat the returned image as unverified until its text has been checked against the source.
 
-## Compilation procedure
+## Procedure
 
-1. Confirm that the current illustration is explicitly approved.
-2. Confirm that its page number and scene match the narrative row.
-3. Load the illustration asset without modifying its content.
-4. Create a 2550 × 3300 px white canvas (or the exact user-specified print dimensions at 300 DPI).
-5. Draw the upper frame and lower text frame using the geometry above.
-6. Fit the illustration inside the upper frame without distortion or loss of important content.
-7. Typeset the exact page text inside the lower frame.
-8. Export a high-resolution PNG and a print-ready PDF page.
-9. Reopen or inspect the output at full resolution.
-10. Validate page size, frame positions, margins, text fit, text accuracy and image placement.
-11. Present the compiled page for user review.
-12. Do not compile the next page until the user approves the current final page.
+1. Confirm the current illustration is explicitly approved and matches the narrative row.
+2. Confirm the exact approved child-facing text and the page number/role. Do not invent missing information.
+3. If an input is missing, mismatched or ambiguous, ask for it rather than reconstructing it.
+4. Fill every part of the prompt template below with page-specific details and the exact complete text. Do not leave placeholders.
+5. Present the full prompt in one code block and tell the user to attach the approved illustration in ChatGPT.
+6. Wait for the user to return the generated page. Do not claim to have generated, inspected, saved or approved an image that was not provided.
+7. Check the returned page against the template and exact source text. If any element fails or cannot be verified, explain the issue and provide a targeted revision prompt; do not call it print-ready.
+8. Pass only a user-approved page that meets the quality gate to `bo-page-quality-auditor`. Only audited pages proceed to `bo-kdp-formatter`.
+9. Do not proceed to the next page until the current final page is explicitly approved.
 
-## Output files
+## Copy-ready prompt template
 
-For each page, produce:
-- `page_XX_illustration.png` — the approved artwork asset, unchanged;
-- `page_XX_final.png` — compiled page at 300 DPI;
-- `page_XX_final.pdf` — compiled print-ready PDF page.
+Maqueta una página interior completa para un libro infantil para colorear. Adjunto la ilustración terminada y aprobada para esta página. Tu tarea es exclusivamente maquetarla.
 
-Use stable page numbering and filenames. Do not overwrite an already approved final page without explicit user instruction. For revisions, create a clearly identified revision or replace only the current unapproved version.
+FORMATO DE SALIDA: Devuelve exactamente una página PNG vertical de 2550 × 3300 píxeles y 300 DPI, equivalente a 8,5 × 11 pulgadas. Usa fondo blanco puro (#FFFFFF) y sin sangrado. No devuelvas una maqueta, descripción, alternativas ni páginas adicionales.
 
-## Compilation quality gate
+PLANTILLA FIJA: Usa exactamente dos marcos rectangulares independientes, centrados, con esquinas redondeadas idénticas y el mismo ancho. Traza bordes negros finos y uniformes de aproximadamente 2–2,5 pt a tamaño de impresión. Centra ambos marcos horizontalmente. Deja aproximadamente 0,22 pulgadas de margen exterior superior e inferior y una separación blanca de 0,08 pulgadas. Usa un ancho de marco de aproximadamente 5,93 pulgadas. El marco superior de ilustración mide aproximadamente 7,83 pulgadas de alto y el marco inferior de texto, aproximadamente 2,65 pulgadas. Mantén toda la geometría dentro de la página. No añadas ningún otro marco, borde ni elemento de maquetación.
 
-- [ ] Illustration was approved by the user.
-- [ ] Correct illustration and narrative row are paired.
-- [ ] Canvas is 8.5 × 11 inches at 300 DPI (or requested dimensions).
-- [ ] Upper illustration frame and lower text frame are present and aligned.
-- [ ] Safe margins are respected.
-- [ ] Frames have a clean gap and do not overlap.
-- [ ] Illustration is not stretched or cropped.
-- [ ] No new artwork has been added by the compiler.
-- [ ] Exact story text is used, with correct paragraph breaks and italics.
-- [ ] Text is legible and contained within the lower frame.
-- [ ] No text is placed over the illustration.
-- [ ] Final PNG and PDF open correctly and are print-ready.
+MARCO SUPERIOR — ILUSTRACIÓN APROBADA: Usa la ilustración adjunta como arte definitivo. Colócala dentro del marco superior con una separación interior mínima y uniforme de aproximadamente 0,05 pulgadas. Conserva la proporción original y todos sus detalles. No la estires, deformes, recortes, redibujes, regeneres, retoques, recolorees, ni añadas o elimines elementos. Maximiza el tamaño visible sin recortar nada. Si no es posible, detente en lugar de alterar la ilustración.
 
-If any check fails, correct the compilation or return the issue to the artist/storyteller. Never conceal a failed check.
+MARCO INFERIOR — TEXTO EXACTO: Incluye únicamente el texto siguiente, conservando exactamente cada palabra, acento, signo de puntuación, diálogo y salto de párrafo. No añadas título, número de página, subtítulo, explicación ni ningún otro texto. Céntralo horizontalmente con una tipografía infantil redondeada y muy legible, en negro; idealmente de 15–17 pt a 300 DPI, con interlineado aproximado de 1,3–1,4 y separación cómoda entre párrafos. Usa el tamaño más grande que quepa. No reescribas ni omitas texto para que quepa; si no cabe de forma legible, detente y solicita una versión aprobada más breve.
+
+<TEXTO_DE_LA_PAGINA>
+[Inserta el texto completo aprobado para esta página, respetando los saltos de párrafo.]
+</TEXTO_DE_LA_PAGINA>
+
+NO HAGAS LO SIGUIENTE: crear o modificar la ilustración; recortarla o deformarla; cambiar su fondo o sus trazos; añadir mapas, objetos, adornos, sombras, color, grises, etiquetas, marcas de agua, firmas ni texto adicional; permitir que los marcos o el texto se recorten o se superpongan.
+
+Antes de devolver la página, comprueba las dimensiones exactas, los dos marcos, los márgenes, la alineación, la separación, la conservación de la imagen, la integridad del texto y su legibilidad. Devuelve únicamente el PNG.
+
+Sustituye el marcador de texto por el texto exacto aprobado antes de presentar el prompt. Incluye únicamente el texto de esta página.
+
+## Prompt handoff quality gate
+
+- [ ] Correct approved illustration and matching narrative row are available.
+- [ ] Prompt includes the complete exact source text and preserves its paragraph breaks.
+- [ ] Prompt specifies the fixed 8.5 × 11 inch, 2550 × 3300 px, 300 DPI template.
+- [ ] Prompt requires exactly two matching frames and the stated dimensions, gap and margins.
+- [ ] Prompt prohibits image alteration, text changes and extra elements.
+- [ ] Prompt is complete, page-specific, in the user's language, in one copy-ready code block, with no unresolved placeholders.
+- [ ] User is told to attach the approved illustration to ChatGPT.
+- [ ] No claim is made that the resulting page has already been generated or technically verified.
 
 ## Human approval and sequencing
 
-After compilation, show the final page and ask:
+After the user returns a page, ask:
 
-"Final page [N] is ready for review. Do you approve it?"
+"La página maquetada [N] está lista para revisión. ¿La apruebas?"
 
 If the user requests a change:
-- determine whether it concerns the artwork or layout/text;
+- determine whether it concerns the artwork, layout or text;
 - route artwork changes to `bo-page-artist`;
-- route layout or typography changes to this compiler;
+- provide a targeted prompt revision for layout or typography changes;
 - route story-copy changes to `bo-adventure-storyteller`;
-- recompile only after the revised component is approved.
+- rebuild the prompt with revised, approved inputs.
 
-Proceed to the next page only after explicit approval of the final compiled page. Illustration approval alone permits compilation, but does not automatically approve the compiled page.
+Proceed to the next page only after explicit approval of the final composed page. Illustration approval alone does not approve the composed page.

@@ -53,7 +53,7 @@ Use the source book's narrative DNA, not its exact wording or scene sequence.
 1. **Familiar hero:** Bo is a friendly young beaver with a clear, consistent silhouette.
 2. **Personal motivation:** Bo discovers a mysterious map or keepsake left by Grandpa.
 3. **Simple mission:** follow the map across the continent to find a treasure.
-4. **Repeatable page engine:** each destination reveals a new map symbol/stamp and a local friend offers a clue or playful challenge.
+4. **Repeatable page engine:** at each destination, Bo briefly observes the current place and meets a different animal associated with that country. They talk, and the animal gives a simple riddle pointing to the next selected destination without naming it.
 5. **Learning through play:** children notice shapes, count features, imitate sounds/movements, match symbols or answer simple questions.
 6. **Escalation:** the clues gradually form a pattern or reveal what the treasure really means.
 7. **Payoff:** Bo finds a chest or final discovery. The treasure should resolve the emotional promise of the story; it need not be gold.
@@ -79,20 +79,21 @@ Bo should look like the same character on every page. His outfit and proportions
 - If the continent is very large, use a magical map, train, boat, plane or other child-friendly transitions to make the journey credible.
 - Do not imply that Bo physically walks between distant places without a transition.
 - Every stop must contribute something different: a new visual scene, clue, friend, action or learning moment.
-- Do not force an animal into a scene if it is not locally plausible. Use a clearly fictional travelling companion or a non-animal clue instead.
+- Give Bo a different animal companion at every destination, including different species when several stops are in the same country. Choose an animal credibly associated with that country and place it in a setting or context where it belongs. Verify the association and habitat; never imply that an animal is native to, or naturally lives at, a monument or habitat where it does not. If no suitable, accurate encounter can be established, ask the user how to proceed rather than inventing one.
 - Avoid stereotypes and cultural tokenism. The setting, not a caricature, should communicate the place.
 
 ### Stage 6 — write page content
 Default audience: ages 3–6. Use short sentences, concrete vocabulary, gentle repetition, rhythmic sound effects and one main idea per paragraph. Read-aloud flow matters.
 
-Each destination page should normally contain:
-1. a short arrival or discovery sentence;
-2. a simple, accurate introduction to the place;
-3. Bo's action or emotional reaction;
-4. a local friend or environmental encounter, if appropriate;
-5. a playful sound/action word or memorable phrase;
-6. a map clue/stamp reveal;
-7. one direct question or small colouring/observation prompt for the child.
+Each destination page should contain:
+1. Bo briefly noticing or reacting to the current monument or place;
+2. a short, simple and accurate introduction to the place;
+3. a conversation between Bo and that stop's distinct, country-associated animal, shown in the text and illustration;
+4. the animal's simple riddle about the next destination on the user's chosen list. Point to a recognisable feature of that place without naming it; make the clue child-friendly and answerable from the story or illustration;
+5. a map symbol/stamp only when the story needs it, not automatically on every stop;
+6. a direct child-facing question or small activity tied to the scene or solving the riddle.
+
+On the final destination page, do not invent or hint at another destination. Let the animal conversation lead toward the treasure, farewell or other established ending, then end with a scene-related child question/activity. Keep the final destination's role distinct from the journey clues.
 
 Vary sentence openings, animal interactions, sound effects and prompts. Repetition should create familiarity, not monotony.
 
@@ -114,20 +115,21 @@ The main deliverable is a **page-by-page table with one row per content page**. 
 
 Use these columns exactly:
 
-| Page | Page role | Graphic content summary | City / region | Country | Monument / landscape / setting | Text appearing on the page | Impact on the story |
-|---|---|---|---|---|---|---|---|
+| Page | Page role | Graphic content summary | City / region | Country | Monument / landscape / setting | Local animal | Text appearing on the page | Impact on the story |
+|---|---|---|---|---|---|---|---|---|
 
 Requirements:
 - **Page:** sequential content-page number. If print pagination includes blank reverse sides, explain that separately; do not silently count blanks as story pages.
 - **Page role:** cover, opening, map, destination, treasure, recap, activity, certificate, etc.
-- **Graphic content summary:** concise but drawable composition, e.g. "Bo stands beside the Eiffel Tower while a small dog points towards the river." Include foreground/background and the main action where useful.
+- **Graphic content summary:** concise but drawable composition. For each destination, show Bo briefly observing the current place and conversing with that page's animal (for example, "Bo admires the tower while a locally appropriate animal faces him and points toward a simple visual hint of the next place"). If the riddle has a clear visual cue, describe it without adding text or prematurely depicting the next destination itself. Include foreground/background and the main action where useful. Show the map only when this row's scene requires it; do not make Bo hold it by default.
 - **City / region:** actual city or region; use "en route" or "not applicable" for non-location pages.
 - **Country:** actual country; use "multiple" or "not applicable" where appropriate.
 - **Monument / landscape / setting:** exact researched place; do not replace it with a generic label.
-- **Text appearing on the page:** provide the complete child-facing text, not a placeholder. Include dialogue, sound effects and the question/activity. Keep it short enough to fit the intended text panel.
+- **Local animal:** name the distinct animal for this destination and briefly identify its credible association with the country and why the depicted setting is appropriate. Do not reuse an animal at another stop or misrepresent its range/habitat. Use "not applicable" on non-destination pages.
+- **Text appearing on the page:** provide the complete child-facing text, not a placeholder. Include Bo and the animal's brief conversation, the animal's indirect riddle about the next selected destination (except at the final stop), sound effects if useful, and the scene-related question/activity. Keep it short enough to fit the intended text panel.
 - **Impact on the story:** explain what the page changes: introduces mission, reveals clue, builds friendship, advances the route, raises anticipation, resolves the mystery, or celebrates learning.
 
-For the destination pages, preserve a consistent but varied mini-structure. The map clue should accumulate logically and pay off at the ending.
+For destination pages, preserve a consistent but varied mini-structure: Bo observes the current place, meets and talks with a distinct locally appropriate animal, then receives an indirect riddle about the next selected destination. The riddle must match a recognisable feature of that destination without naming it. The final stop has no next-destination riddle and instead leads into the established ending. Map clues/stamps may accumulate when the story calls for them, but neither a map nor Bo holding one is required in every illustration.
 
 ## Additional deliverables after the table
 
@@ -139,12 +141,12 @@ For the destination pages, preserve a consistent but varied mini-structure. The 
 - Explanation of how the treasure reveal pays off the journey.
 
 ### 2. Destination-to-story mapping
-A compact list mapping each explorer destination ID to its page number, narrative purpose and clue/stamp. Every selected destination must be accounted for, or an explicit reason must be given for omitting one.
+A compact list mapping each explorer destination ID to its page number, distinct animal, narrative purpose and riddle/stamp. Every selected destination must be accounted for, or an explicit reason must be given for omitting one. State which recognisable feature the riddle points to; the riddle itself must not name the next destination.
 
 ### 3. Continuity and illustration bible
 Specify:
 - Bo's fixed character design;
-- recurring props (map, backpack, scarf, stamps, chest);
+- recurring props (backpack, scarf, stamps, chest; show the map only on pages that need it);
 - line-art style: black outlines, white background, no grayscale or colour fills unless requested;
 - simple, open shapes and generous colouring areas;
 - visual hierarchy: Bo and the landmark must both be easy to identify;
@@ -179,6 +181,9 @@ Before finalizing, verify all of the following:
 - [ ] The story has a clear beginning, middle, climax and ending.
 - [ ] The map/clue mechanism is consistent and pays off.
 - [ ] Each destination has a distinct visual composition and story function.
+- [ ] Every destination has a different, country-associated animal in a plausible setting, and the animal converses with Bo.
+- [ ] Every non-final destination has a simple, indirect riddle about the next selected destination and its recognisable feature; the final stop leads to the ending instead.
+- [ ] Each destination's illustration shows Bo observing the current place and visibly interacting with its animal; the map appears only when that scene requires it.
 - [ ] Every destination page includes complete child-facing text and a child interaction.
 - [ ] Bo's appearance and personality remain consistent.
 - [ ] Local animals are not falsely presented as native or typical.

@@ -1,6 +1,6 @@
 ---
 name: bo-page-artist
-description: Creates and presents the final prompt for one clean black-and-white Bo storybook illustration for the user to generate in ChatGPT, using the repository's Bo_image.jpg as reference when Bo appears. Waits for approval before moving to the next illustration.
+description: Designs a detailed, production-ready prompt for one accurate black-and-white Bo storybook illustration, including scene composition, location details, character reference and strict art constraints. Hands it to creadora-imagen-ia for API generation.
 ---
 
 # Bo Page Artist
@@ -11,7 +11,7 @@ Create the **illustration artwork only** for the current page in a Bo the Beaver
 
 This skill is the artistic production stage. It must not design or assemble the finished page. A separate skill, `bo-page-compiler`, is responsible for adding the frames, exact story text, margins and print layout.
 
-Prepare and present the complete illustration prompt for the user to copy into ChatGPT. The user handles image generation and download manually. Do not use an image-generation API. The repository file `Bo_image.jpg` is the authoritative visual reference for Bo and must be attached in ChatGPT whenever Bo appears.
+Design a complete, page-specific prompt that directs an image-generation model to create the approved illustration accurately and consistently. Hand the exact prompt and required metadata to `creadora-imagen-ia`, which sends the prompt and reference image to the OpenAI Images API, downloads the result and stores a versioned PNG. This skill designs the image and prompt; it does not call the API or claim to generate the image itself. The repository file `Bo_image.jpg` is the authoritative visual reference and is sent with every request; the prompt must explicitly say not to add Bo to a scene unless the approved narrative row includes him.
 
 ## Inputs
 
@@ -29,16 +29,16 @@ Optional:
 
 If the narrative row or research details are missing, request them. Do not invent a location or redesign the story.
 
-## One-illustration approval workflow
+## One-illustration prompt and approval workflow
 
 1. Select the first page that requires an illustration, or the page number specified by the user.
 2. Read the current narrative row and relevant explorer details.
 3. Locate the exact repository file `Bo_image.jpg`.
-4. Build the complete page-specific prompt from the template below.
-5. Present the exact, complete prompt in a single code block for easy copying. Do not require the user to run a script or download/import an image.
-6. If Bo appears, remind the user to attach `Bo_image.jpg` in ChatGPT as the visual reference.
-7. Stop and let the user generate the image in ChatGPT. Do not claim to have generated or inspected an image that the user has not provided.
-8. If the user later shares the generated image and asks for review, inspect it against the artistic quality gate. If it fails or the user requests changes, revise only the prompt for the current illustration.
+4. Design and check the complete page-specific prompt using the art direction, prompt template and quality gate below. Resolve every placeholder and specify the exact composition; do not make the API skill invent missing scene details.
+5. Hand the exact final prompt, continent, country, monument, repository `Bo_image.jpg`, and (for a correction) the previous generated image to `creadora-imagen-ia`. Do not alter the prompt during handoff.
+6. The API skill must request user confirmation before any paid API call unless the user has already explicitly authorized generation in the current request. Do not claim generation has started until the request is confirmed and executed.
+7. Review the returned image against the narrative row and artistic quality gate. Do not claim that a prompt or API response guarantees a perfect result.
+8. If the user requests a correction, identify the specific defects, revise the prompt to fix only those defects, and explicitly identify `Bo_image.jpg` as the character reference and the prior generated image as the base composition. Preserve every approved element not named for correction. Pass the revised prompt, previous image and `Bo_image.jpg` to `creadora-imagen-ia`. Corrections create a new version; never overwrite the prior image.
 9. Do not proceed to another page until the user explicitly approves the current illustration.
 
 Never interpret silence or a request for changes as approval. Approval applies only to the current illustration.
@@ -93,40 +93,46 @@ Do not reserve a lower text area inside the illustration canvas. The compiler cr
 - Closed shapes wherever practical.
 - Large, open areas easy to colour with crayons.
 - Bo and friendly animals: simple, rounded, cartoon-like.
+- For destination pages, when specified by the approved story row, make the conversation visible through the characters' expressions, facing direction and gestures: Bo observes the current place and listens or responds to its distinct, locally appropriate animal. If the row describes a drawable hint for the animal's riddle, show that hint as a simple, non-text visual cue without depicting the next destination itself. Do not add speech balloons or text.
 - Landmark or landscape: recognisable real-world silhouette and defining features, moderately realistic proportions with simplified details.
 - The landmark may be more detailed than Bo but must remain easy to colour.
 - Clear visual hierarchy and uncluttered composition.
 - Use only the elements required by the narrative row.
+- Do not add the map as a recurring prop. Include it only when the current narrative row explicitly requires it; Bo does not need to hold it whenever it appears. Any map shown as a prop must obey the same approved scope and exclusion constraints as a map page.
+- Compose the scene deliberately: establish one focal action, a readable foreground/middle-ground/background, clear relative scale, and a camera angle that shows both Bo's interaction and the landmark's identifying silhouette. Keep all important forms separated and fully inside the image.
+- Make the current place immediately recognizable through a few verified architectural or landscape features, not invented ornament or excessive background detail. Use accurate local context for animals; do not imply an animal belongs at a monument or habitat where it would not naturally occur.
+- For a conversation, use eye-lines, body orientation and gestures to make it legible without speech bubbles, lettering or symbols that could be mistaken for text. For a riddle clue, use only a simple visual hint described in the approved row, without accidentally showing or naming the next destination.
+- Adapt the layout to the requested image ratio and keep a comfortable white safety area around the subjects. Do not let the reference-image composition dictate the new scene's crop or background.
 
 No colour, grey tones, shading, gradients, hatching, realistic textures, fur/feather micro-detail, tiny ornaments, dense patterns or large solid black areas. Small black eyes and noses are acceptable.
 
 ## Prompt template
 
-Present the completed prompt for the user to paste into ChatGPT verbatim, attaching `Bo_image.jpg` there as the reference when Bo appears. Do not send an unfinished template or silently alter the prompt. After presenting it, stop and wait for the user.
+Produce the completed prompt for the image-generation API skill. Do not leave placeholders or ask that skill to invent visual details. `creadora-imagen-ia` sends `Bo_image.jpg` separately as a reference image; when Bo appears, explicitly tell the model to use it as the character-design reference, not as the scene to copy. If the story row does not include Bo, explicitly instruct the model not to add him despite the reference input.
 
 Create the **[PAGE / DESTINATION NAME]** illustration for a children's colouring book for ages 3 to 6.
 
 IMPORTANT: Generate the illustration artwork ONLY. Do not create a book page, layout, frame, border, panel, text area, caption, title, typography, letters, numbers, page number, watermark or signature. The separate page compiler will add the frames and story text later.
 
-CHARACTER REFERENCE: Use the attached master reference image `Bo_image.jpg` as the authoritative visual reference for Bo. Keep his round head, lighter muzzle patch, two large square front teeth, round ears, small tuft of fur, striped scarf, small backpack, body proportions and broad flat paddle-shaped tail consistent with the reference. Only his pose, expression, orientation and placement may change. Do not redesign him.
+CHARACTER REFERENCE: The API request includes the repository image `Bo_image.jpg` as a reference input. Use it as the authoritative visual reference for Bo's identity only. Keep his round head, lighter muzzle patch, two large square front teeth, round ears, small tuft of fur, striped scarf, small backpack, body proportions and broad flat paddle-shaped tail consistent with it. Only his pose, expression, orientation and placement may change. Do not copy the reference image's pose or background, and do not redesign Bo.
 
-SCENE: [Translate the narrative row's graphic-content summary into a precise composition. Specify Bo's pose and placement, landmark silhouette, foreground/background, and the local animal or companion only when supported by the research.]
+SCENE AND ACTION: [Describe the exact approved story scene, its single focal action, Bo's pose and expression, the other character's action, and how the interaction reads visually. Include only narrative-approved elements.]
 
-LOCATION ACCURACY: [Describe verified distinctive features of the actual monument, landscape or environment. Preserve its recognizable silhouette and defining details while simplifying it for young colourists.]
+COMPOSITION: [Specify portrait/landscape aspect ratio and output dimensions, camera/viewpoint, subject placement and scale, recognizable landmark silhouette, and uncluttered foreground/middle-ground/background. Keep all important details fully visible with safe space around the edges.]
 
-COMPOSITION: [Use the aspect ratio supplied by the compiler. Keep all important subjects fully visible, with comfortable space around the edges. No cropping of Bo, animals or the landmark.]
+LOCATION AND ANIMAL ACCURACY: [Name verified distinctive features of the actual monument or environment and the specified animal. Place the animal only in a plausible country/habitat context. Do not invent landmark details or imply unsupported wildlife associations.]
 
-LINE ART: Thick, smooth, clean black outlines; closed shapes; large open colouring areas. Bo and animals remain simple, friendly and rounded. The landmark has moderately realistic proportions with simplified details. Pure white background.
+LINE ART AND COLOURING: Pure white background; black-and-white line art only. Thick, smooth, consistent black outlines; closed shapes wherever practical; large open areas easy to colour. Keep Bo and friendly animals simple, rounded and consistent with the reference. Use recognizable but simplified landmark details and a clear visual hierarchy.
 
-DO NOT INCLUDE: any text, letters, numbers, frames, borders, panels, captions, titles, page layout, colour, grey tones, shading, gradients, hatching, realistic textures, intricate patterns, clutter, large solid black areas except eyes and noses, cropped characters, cropped landmarks or cropped objects.
+DO NOT INCLUDE: any text, letters, numbers, speech bubbles, frames, borders, panels, captions, titles, page layout, colour, grey tones, shading, gradients, hatching, realistic textures, intricate patterns, clutter, large solid black areas except small facial details, extra animals or props, unsupported wildlife, cropped characters, cropped landmarks or cropped objects. Include a map only if this exact story row requires it; if shown, obey all approved geographic exclusions.
 
-After generating, check that Bo matches the attached reference, the location is recognisable and accurate, all required scene elements are present, the composition fits the requested aspect ratio, and the result contains artwork only. If anything fails, revise and regenerate this same illustration.
+Before generation, ensure the prompt matches the approved narrative row and verified research. After generation, the artist must check that Bo matches the reference, the location is recognizable, animals and props are correct, the composition is drawable and uncluttered, and the result contains artwork only. If anything fails, revise this same prompt for a new version.
 
 ## Page-specific rules
 
-- **Destination:** Bo and the landmark must both be prominent. Add at most one local animal/companion unless the narrative row explicitly requires more.
+- **Destination:** Bo, the current landmark and the distinct animal specified by the story row must all be clear. Show Bo briefly observing the landmark and visibly conversing with the animal through pose and expression. Use at most one local animal/companion unless the narrative row explicitly requires more. Respect the animal's verified country association and habitat; do not place it in an implausible setting. Do not add the map unless the row calls for it.
 - **Friends page:** Follow the exact count, species and arrangement in the narrative row. No extra animals.
-- **Map page:** Draw only the map artwork and symbols; no title lettering or labels unless the narrative specifically requires a non-text visual symbol. The compiler adds any wording.
+- **Map page:** Draw only the map artwork and symbols; no title lettering or labels unless the narrative specifically requires a non-text visual symbol. The compiler adds any wording. Show only the continent or region specified in the approved story and its allowed scope—not a world map, other continents, or surrounding out-of-scope areas. Respect all inclusion and exclusion constraints exactly: do not depict excluded areas or show excluded countries/regions as destinations, labels, highlights, route stops, symbols or landmarks. Include only approved destinations. Do not infer an unclear map scope; ask the user to clarify before preparing the prompt.
 - **Treasure page:** Follow the established story reveal. Do not invent a different treasure.
 - **Favourite-place activity:** Create only the small illustration element, if any. Leave blank drawing-space decisions to the compiler.
 - **Certificate:** Create only the illustration artwork or decorative non-text motifs. Never render certificate wording.
@@ -137,6 +143,8 @@ After generating, check that Bo matches the attached reference, the location is 
 - [ ] Bo matches the actual `Bo_image.jpg` reference.
 - [ ] Landmark/environment is recognisable and factually grounded.
 - [ ] Correct animal/companion and exact count.
+- [ ] Destination scene shows Bo observing the current place and interacting with the specified animal; the map appears only if the story row requires it.
+- [ ] Any map is limited to the approved continent/region and obeys all inclusion and exclusion constraints.
 - [ ] Clean black outlines and large colourable spaces.
 - [ ] Pure white background; no colour, grey or shading.
 - [ ] No text, typography, frames, borders or page-layout elements.

@@ -1,22 +1,24 @@
 ---
 name: bo-kdp-formatter
-description: Formats only quality-approved Bo book pages into a KDP-ready interior PDF. Defaults to an exact 8.5 × 11 inch trim size and supports another user-requested trim size. Does not create or edit artwork or story text.
+description: Assembles quality-approved Bo page PNGs, laid out with the bo-page-compiler prompt, into a KDP interior PDF and preflight report. Defaults to 8.5 × 11 inches; never redesigns or alters page content.
 ---
 
 # Bo KDP Formatter
 
 ## Mission
 
-Take pages that have already passed `bo-page-quality-auditor` and prepare the final print interior for Amazon Kindle Direct Publishing (KDP).
+Take the final PNG pages produced from prompts prepared by `bo-page-compiler` and already passed by `bo-page-quality-auditor`, then assemble them into the final print interior for Amazon Kindle Direct Publishing (KDP).
 
-This skill is a **print-formatting and file-preparation stage only**. It must not:
+This skill is a **book-level PDF assembly and preflight stage only**. The `bo-page-compiler` prompt defines the page design; this skill preserves it. It must not:
 - generate, redraw, retouch or alter illustrations;
 - rewrite, translate, correct or reflow story content in a way that changes wording;
-- redesign the page frames or illustration composition;
+- redesign, add, remove, or resize the page frames or illustration composition;
 - silently crop important content;
 - repair a failed QA page and then treat it as approved.
 
-Its job is to set the requested trim size, page geometry, print settings, page order, blank-page strategy and export format, then validate the resulting PDF.
+Its job is to verify the page PNGs match the approved trim size, set PDF page boxes and print settings without changing page content, apply the approved page order and blank-page strategy, export the PDF, then validate it.
+
+Do not treat PDF assembly as a substitute for the per-page layout prompt. Do not create a competing page template here; use the same fixed design as `bo-page-compiler`.
 
 ## Default format
 
@@ -29,7 +31,7 @@ Unless the user explicitly requests another size, use:
 - Equivalent raster canvas: 2550 × 3300 pixels at 300 DPI
 - Interior: black-and-white unless the user explicitly requests another print interior type
 - Bleed: **no bleed by default**, unless the approved design/KDP setup explicitly requires bleed
-- Keep all content within the approved safe margins and KDP's applicable minimum margins
+- Keep all content within the approved page design and KDP's applicable requirements. The page's white outer margin and frame dimensions come from the approved `bo-page-compiler` template; do not silently resize the design to meet a different margin assumption.
 
 "Exactly 8.5 × 11 inches" means the PDF MediaBox/CropBox page dimensions must be 612 × 792 points (subject only to normal PDF floating-point precision). Do not rely only on the file name, metadata label or pixel dimensions.
 
@@ -40,6 +42,7 @@ Required:
 2. QA report/status for every page.
 3. Page order from the approved narrative/production plan.
 4. Confirmation of whether blank reverse sides are required.
+5. Final page PNGs matching the approved `bo-page-compiler` template (default: 2550 × 3300 px at 300 DPI).
 
 Optional:
 - Requested trim size (width × height and units).
@@ -71,10 +74,10 @@ KDP print requirements can depend on trim size, page count, paper, ink, bleed an
 - Use the user's explicit KDP template/specification when supplied.
 - If current KDP rules need to be confirmed and web access is available, consult official Amazon KDP help/documentation only.
 - Do not invent minimum margins, gutter values, bleed allowances, page-count limits or cover-spine dimensions.
-- If the required KDP specification cannot be verified, clearly state what remains unverified and request the relevant KDP template/settings.
+- If the required KDP specification cannot be verified, clearly state what remains unverified and request the relevant KDP template/settings. In particular, do not claim a margin is KDP-compliant solely because it matches the page-layout prompt.
 - This skill formats the **interior** by default. Do not calculate or create a full cover wrap unless explicitly requested and all required page-count, paper and bleed inputs are known.
 
-For a no-bleed interior, ensure content stays inside the selected safe area. For bleed, use the exact KDP bleed dimensions for the chosen trim size and apply them consistently; do not merely scale the no-bleed page.
+For a no-bleed interior, verify the approved page meets the selected safe-area requirements. If it does not, return it for a revised page-layout prompt and regenerated page; do not shrink, crop, reposition or otherwise alter the approved page to force compliance. For bleed, use the exact KDP bleed dimensions for the chosen trim size and have the page layout recreated to that specification; do not scale the no-bleed page.
 
 ## Page geometry and scaling
 
@@ -92,17 +95,17 @@ If the user requests another trim size:
 2. Convert to points and inches.
 3. Confirm orientation.
 4. Use the exact requested physical dimensions for every PDF page.
-5. Recalculate safe area and placement using the applicable KDP requirements.
+5. Verify the approved page-layout prompt and regenerated PNGs use dimensions and safe areas suitable for that trim size.
 6. Preserve aspect ratios; never stretch artwork or text.
 7. If the new format makes the existing approved design unsuitable, stop and explain the issue. Request a layout revision from `bo-page-compiler` rather than cropping important content or distorting the page.
 
 ### Scaling rules
 
-- Prefer proportional fit with white padding when the target and source aspect ratios differ.
+- For the default 8.5 × 11 inch interior, place each 2550 × 3300 px page PNG on an 8.5 × 11 inch PDF page at its native size, without resizing or modifying pixels.
+- Verify that the PNG dimensions and effective resolution support the exact target page size. If they do not, return the page to `bo-page-compiler` for a revised prompt and regenerated page.
+- For another trim size or bleed setting, request page assets composed to that specification through `bo-page-compiler`; do not scale, crop or pad an already approved page.
 - Never stretch an illustration or finished page non-uniformly.
 - Never crop Bo, landmarks, text, frames or any meaningful content.
-- Do not shrink the content below legible print size merely to force a fit.
-- If a page cannot fit safely, flag it for a layout adjustment by `bo-page-compiler`.
 - Do not add or remove frames; do not alter the approved design.
 - Do not change the exact approved text.
 
@@ -125,9 +128,9 @@ Do not add blank pages automatically if the user has not requested them or if th
 3. Confirm requested trim size; default to 8.5 × 11 inches.
 4. Confirm bleed, interior type, paper and blank-page strategy.
 5. Inspect each source page's dimensions, orientation and file integrity.
-6. Create a consistent document with the exact target physical page size.
-7. Place each approved page proportionally within the target page geometry.
-8. Apply only necessary white padding or safe-area positioning. Do not redesign or modify content.
+6. Confirm every page was composed using the approved compiler prompt and that the PNG dimensions/effective resolution match the requested page size.
+7. Create a consistent PDF with the exact target physical page size.
+8. Embed each approved page at native size, without resizing, cropping, padding or changing its layout.
 9. Insert blank reverse pages only when requested.
 10. Assemble pages in the approved order.
 11. Export a print-ready interior PDF.
@@ -152,6 +155,7 @@ Keep source page files unchanged. Do not overwrite the approved source pages.
 - [ ] Default is exactly 8.5 × 11 inches (612 × 792 pt) unless overridden.
 - [ ] All pages have consistent orientation and dimensions.
 - [ ] No unintended rotation or mixed-size pages.
+- [ ] Each page PNG matches the approved compiler layout and is embedded at native size.
 
 ### Content and safe area
 - [ ] All pages have passed QA.
@@ -175,6 +179,7 @@ Keep source page files unchanged. Do not overwrite the approved source pages.
 - [ ] Blank reverse pages included only as requested.
 - [ ] Blank pages are actually blank.
 - [ ] No accidental duplicate, missing or out-of-order pages.
+- [ ] PDF assembly has not changed the approved page design.
 
 If any check fails, do not label the PDF KDP-ready. Explain the failure and route it to the responsible upstream skill or request the missing KDP settings.
 
@@ -208,4 +213,4 @@ This skill does not:
 - change the content to fix layout problems;
 - bypass the QA gate.
 
-Its deliverable is a correctly sized, consistently assembled, preflight-checked interior PDF.
+Its deliverable is a correctly sized, consistently assembled, preflight-checked interior PDF. Per-page frames and typography are created from prompts prepared by `bo-page-compiler`; this formatter only assembles and validates those final pages.

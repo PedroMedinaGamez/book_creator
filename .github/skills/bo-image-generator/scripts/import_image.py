@@ -6,7 +6,6 @@ from __future__ import annotations
 import argparse
 import os
 import re
-import shutil
 import sys
 import unicodedata
 from pathlib import Path
@@ -32,19 +31,32 @@ def import_next_version(
     monument: str,
 ) -> Path:
     try:
-        with source.open("rb") as source_file:
-            if source_file.read(len(PNG_SIGNATURE)) != PNG_SIGNATURE:
-                raise ValueError("El archivo descargado no es un PNG válido.")
+        image_bytes = source.read_bytes()
     except OSError as error:
         raise ValueError(f"No se pudo leer la imagen descargada: {error}") from None
 
-    destination = output_root / safe_slug(continent) / safe_slug(country)
-    destination.mkdir(parents=True, exist_ok=True)
-    monument_slug = safe_slug(monument)
+    return save_png_next_version(
+        image_bytes, output_root, continent, country, monument
+    )
 
+
+def save_png_next_version(
+    image_bytes: bytes,
+    output_root: Path,
+    continent: str,
+    country: str,
+    monument: str,
+) -> Path:
+    if not image_bytes.startswith(PNG_SIGNATURE):
+        raise ValueError("El archivo descargado no es un PNG válido.")
+
+    destination = output_root / safe_slug(continent) / safe_slug(country)
+    monument_slug = safe_slug(monument)
     version = 1
     while True:
-        path = destination / f"{monument_slug}_v{version}.png"
+        version_directory = destination / f"v{version}"
+        version_directory.mkdir(parents=True, exist_ok=True)
+        path = version_directory / f"{monument_slug}.png"
         try:
             descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o666)
         except FileExistsError:
@@ -52,10 +64,8 @@ def import_next_version(
             continue
 
         try:
-            with source.open("rb") as source_file, os.fdopen(
-                descriptor, "wb"
-            ) as destination_file:
-                shutil.copyfileobj(source_file, destination_file)
+            with os.fdopen(descriptor, "wb") as destination_file:
+                destination_file.write(image_bytes)
         except BaseException:
             path.unlink(missing_ok=True)
             raise
@@ -64,7 +74,10 @@ def import_next_version(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Importa un PNG generado en ChatGPT a images/<continente>/<país>/."
+        description=(
+            "Importa un PNG a images/<continente>/<país>/vN/<monumento>.png "
+            "sin sobrescribir versiones anteriores."
+        )
     )
     parser.add_argument("--source", required=True, type=Path, help="PNG descargado de ChatGPT.")
     parser.add_argument("--continent", required=True)
