@@ -1,13 +1,13 @@
 ---
 name: bo-kdp-formatter
-description: Assembles quality-approved Bo page PNGs, laid out with the bo-page-compiler prompt, into a KDP interior PDF and preflight report. Defaults to 8.5 × 11 inches; never redesigns or alters page content.
+description: After bo-page-quality-auditor approves every final page, selects the highest version of each page in pages/<continent>/, inserts one blank page between consecutive pages, and assembles the KDP interior PDF.
 ---
 
 # Bo KDP Formatter
 
 ## Mission
 
-Take the final PNG pages produced from prompts prepared by `bo-page-compiler` and already passed by `bo-page-quality-auditor`, then assemble them into the final print interior for Amazon Kindle Direct Publishing (KDP).
+After every expected page has passed `bo-page-quality-auditor` and received user approval, find the highest numbered saved version of each page in `pages/<continent>/`, then assemble those pages into the final print interior for Amazon Kindle Direct Publishing (KDP). Insert exactly one blank white page between each pair of consecutive story pages; do not append an extra blank page after the last story page.
 
 This skill is a **book-level PDF assembly and preflight stage only**. The `bo-page-compiler` prompt defines the page design; this skill preserves it. It must not:
 - generate, redraw, retouch or alter illustrations;
@@ -16,7 +16,7 @@ This skill is a **book-level PDF assembly and preflight stage only**. The `bo-pa
 - silently crop important content;
 - repair a failed QA page and then treat it as approved.
 
-Its job is to verify the page PNGs match the approved trim size, set PDF page boxes and print settings without changing page content, apply the approved page order and blank-page strategy, export the PDF, then validate it.
+Its job is to enforce complete QA approval for the latest version of every expected page, preserve the page content, insert the required interleaved blank pages, export the PDF, then validate page count, order, dimensions and blanks.
 
 Do not treat PDF assembly as a substitute for the per-page layout prompt. Do not create a competing page template here; use the same fixed design as `bo-page-compiler`.
 
@@ -41,8 +41,10 @@ Required:
 1. Final page files that have passed `bo-page-quality-auditor`.
 2. QA report/status for every page.
 3. Page order from the approved narrative/production plan.
-4. Confirmation of whether blank reverse sides are required.
-5. Final page PNGs matching the approved `bo-page-compiler` template (default: 2550 × 3300 px at 300 DPI).
+4. Expected page count and sequence from the approved production plan.
+5. QA manifest/report that explicitly approves the exact latest version of every page. Required JSON shape:
+   `{"pages":{"1":{"status":"PASS","version":2},"2":{"status":"PASS WITH NOTES","version":1,"user_accepted_notes":true}}}`
+6. Final page PNG versions in `pages/<continente>/page_<n>.v<m>.png`, produced by `final-page-ia`.
 
 Optional:
 - Requested trim size (width × height and units).
@@ -51,7 +53,7 @@ Optional:
 - KDP template or print specification supplied by the user.
 - Page count and cover/spine information if the user asks for a full cover wrap (this skill's default scope is interior pages only).
 
-If a required input is missing, ask only for the missing information that materially affects the output. Do not guess whether blank reverse pages are needed.
+If the page count, sequence, QA results, or a latest page version is missing or ambiguous, ask for it and do not produce a partial book.
 
 ## Quality gate dependency
 
@@ -61,11 +63,13 @@ Only format pages with status:
 
 If a page is `FAIL`, send it back to the responsible skill identified by the QA report. If it is `BLOCKED`, request the missing evidence or file. Never include a failed or blocked page in the final KDP interior.
 
-Before formatting, verify that every supplied page has:
+Before formatting, verify that every expected page has:
 - a unique page identifier;
 - an approved final page file;
-- a corresponding QA result;
+- a corresponding `PASS` QA result for the exact highest version on disk, or `PASS WITH NOTES` with explicit user acceptance for that exact version;
 - a known position in the book sequence.
+
+The QA manifest must include the page number, QA status and approved version for every expected page. The selected file version must equal the version listed in the manifest. If a newer correction exists without a fresh passing audit, stop; do not silently fall back to an older passing version. Do not omit missing pages or build a partial PDF.
 
 ## KDP specification handling
 
@@ -111,31 +115,34 @@ If the user requests another trim size:
 
 ## Page order and blank reverse sides
 
-Use the narrative/production plan as the authoritative page sequence.
+Use the approved production plan as the authoritative sequence and expected page count. Always insert exactly one completely blank page between every pair of consecutive final story pages. A book with N final pages therefore has `2N - 1` PDF pages. Do not add a blank page before the first or after the last story page. Blank pages contain no frame, page number, hidden image, watermark or rendered metadata. Do not count blank pages as story pages.
 
-Ask or follow explicit user instructions on whether each illustrated page should have a blank reverse side. If blank backs are required:
-- insert one completely blank page after the corresponding printed page;
-- ensure blank pages are truly blank (no frame, page number, hidden image, watermark or metadata rendered on the page);
-- do not count a blank reverse side as a story/content page in the narrative index;
-- update total PDF page count and verify it is compatible with the chosen KDP setup.
+For each expected page number, select the highest existing filename version `page_<n>.v<m>.png` under `pages/<continent>/`. Include exactly one final page per story page, in ascending page-number order. Do not include lower versions, unplanned page numbers, duplicate pages or a page whose selected version lacks a passing QA result.
 
-Do not add blank pages automatically if the user has not requested them or if the production plan specifies another arrangement.
+Run the formatter script after receiving the manifest:
+
+```powershell
+python .github\skills\bo-kdp-formatter\scripts\format_interior.py `
+  --continent "<continente>" `
+  --page-count <cantidad-de-paginas> `
+  --qa-manifest "<ruta-al-manifiesto-qa.json>"
+```
+
+The script selects the highest version on disk, requires that same version to be audited, checks the 2550 × 3300 px / 300 DPI page files, and writes the PDF and report under `pages/<continente>/`. Do not run it before all page approvals are present.
 
 ## Formatting procedure
 
-1. Collect all final pages and QA reports.
-2. Reject any page that has not passed QA.
-3. Confirm requested trim size; default to 8.5 × 11 inches.
-4. Confirm bleed, interior type, paper and blank-page strategy.
-5. Inspect each source page's dimensions, orientation and file integrity.
-6. Confirm every page was composed using the approved compiler prompt and that the PNG dimensions/effective resolution match the requested page size.
-7. Create a consistent PDF with the exact target physical page size.
-8. Embed each approved page at native size, without resizing, cropping, padding or changing its layout.
-9. Insert blank reverse pages only when requested.
-10. Assemble pages in the approved order.
-11. Export a print-ready interior PDF.
-12. Reopen the PDF and inspect page count, page dimensions, orientation, page order, blank pages and rendering.
-13. Produce a concise KDP preflight report.
+1. Read the expected page count/order and QA manifest after all pages have been audited and approved.
+2. Discover the highest `vN` file for each expected page in `pages/<continent>/`.
+3. Confirm that the QA manifest approves that exact highest version for every page. Stop if a status is FAIL/BLOCKED, a page/version is missing, or a newer version is unaudited.
+4. Confirm requested trim size; default to 8.5 × 11 inches.
+5. Confirm bleed and interior type/paper settings. The blank-between-pages rule is mandatory and is not optional.
+6. Inspect each selected source page's dimensions, orientation, DPI metadata and file integrity.
+7. Create a PDF with the exact target physical page size and place each approved 2550 × 3300 px PNG at native 300-DPI size, without resizing, cropping or changing its layout.
+8. Add exactly one pure-white blank PDF page between consecutive story pages, with no trailing blank.
+9. Assemble in ascending page order and save `Bo_KDP_Interior_8.5x11.pdf` under `pages/<continent>/` (or reflect a requested trim size in the name).
+10. Reopen or parse the PDF and verify its dimensions, page count (`2N - 1`), page order, each interleaved blank page and successful rendering.
+11. Produce a concise preflight report listing the exact selected page versions and their QA status.
 
 ## Output files
 
@@ -176,10 +183,12 @@ Keep source page files unchanged. Do not overwrite the approved source pages.
 
 ### Book structure
 - [ ] Correct page count.
-- [ ] Blank reverse pages included only as requested.
+- [ ] Exactly one blank page appears between every pair of story pages, with none before the first or after the last.
+- [ ] Total PDF page count is `2N - 1` for N story pages.
 - [ ] Blank pages are actually blank.
 - [ ] No accidental duplicate, missing or out-of-order pages.
 - [ ] PDF assembly has not changed the approved page design.
+- [ ] The highest on-disk version of every page is the version approved in the QA manifest.
 
 If any check fails, do not label the PDF KDP-ready. Explain the failure and route it to the responsible upstream skill or request the missing KDP settings.
 
@@ -193,6 +202,7 @@ Return:
 - Orientation:
 - Page count:
 - Blank reverse pages:
+- Selected highest page versions and QA status:
 - Bleed:
 - Interior type / paper:
 - Effective raster resolution:
@@ -213,4 +223,4 @@ This skill does not:
 - change the content to fix layout problems;
 - bypass the QA gate.
 
-Its deliverable is a correctly sized, consistently assembled, preflight-checked interior PDF. Per-page frames and typography are created from prompts prepared by `bo-page-compiler`; this formatter only assembles and validates those final pages.
+Its deliverable is a correctly sized, consistently assembled, preflight-checked interior PDF with one blank page between consecutive pages. It runs only after every latest page version has passed the auditor and received the required approval.

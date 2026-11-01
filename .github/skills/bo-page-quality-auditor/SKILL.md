@@ -24,7 +24,7 @@ A page may be marked **PASS** only when all mandatory checks pass. Otherwise mar
 
 For each page, obtain:
 
-1. **Final compiled page image/PDF** from `bo-page-compiler`.
+1. **Final page PNG** from `final-page-ia`, with its exact versioned path (for example `pages/europe/page_3.v2.png`).
 2. **Approved narrative row** from `bo-adventure-storyteller`, including:
    - page number and role;
    - graphic-content summary;
@@ -39,7 +39,7 @@ For each page, obtain:
    - approved target-language text;
    - target language and regional variant;
    - translator's notes for culturally adapted expressions, sound effects or wordplay.
-7. **Production specification**, defaulting to 8.5 × 11 inches, 300 DPI, 0.5-inch safe margins and two framed panels.
+7. **Production specification**, defaulting to 8.5 × 11 inches, 300 DPI, the approved two-frame page template and its approximately 0.22-inch outer white margins.
 
 If a required reference is unavailable, do not guess. Mark the relevant check **NOT VERIFIABLE** and the page **BLOCKED** if the missing evidence is necessary to validate it.
 
@@ -180,9 +180,9 @@ Default expected output:
 - Trim size: 8.5 × 11 inches, portrait.
 - Resolution: 300 DPI.
 - Raster equivalent: 2550 × 3300 pixels.
-- Safe margin: at least 0.5 inch on every side.
+- Outer white margin: approximately 0.22 inch per the approved compiler template. Separately verify KDP safe-area compliance; do not assume the template margin alone satisfies KDP.
 - No bleed unless explicitly requested.
-- Final PDF and PNG must open and render correctly.
+- Final page PNG must open and render correctly. The book-level PDF is created later by `bo-kdp-formatter`.
 
 Checks:
 - [ ] Correct portrait orientation and aspect ratio.
@@ -191,8 +191,8 @@ Checks:
 - [ ] Safe margins are respected.
 - [ ] Frames and text remain within the safe area.
 - [ ] No clipping at page edges.
-- [ ] PDF page size matches the intended trim size.
-- [ ] PNG dimensions and PDF dimensions are consistent.
+- [ ] PNG dimensions are 2550 × 3300 px and match the intended trim size at 300 DPI.
+- [ ] Page file path, page number and version are identified for the formatter.
 - [ ] No unexpected transparency, colour profile or background artefact changes the black-and-white output.
 - [ ] File is not corrupted and renders at full resolution.
 
@@ -242,7 +242,7 @@ A page with only minor findings may receive **PASS WITH NOTES** if all mandatory
 | Landmark facts or missing/incorrect location research | `continental-explorer`, then `bo-page-artist` |
 | Story scene, narrative mismatch or incorrect page content | `bo-adventure-storyteller` |
 | Translation naturalness, idiom, locale or translation meaning | `bo-professional-translator` |
-| Text rendering, font, spacing, centring, frames, margins, PDF/PNG layout | `bo-page-compiler` |
+| Text rendering, font, spacing, centring, frames, margins, PNG page layout | `bo-page-compiler`, then `final-page-ia` |
 | Wrong or inconsistent source text | `bo-adventure-storyteller` or `bo-professional-translator`, depending on the source |
 
 Do not attempt the correction yourself. State the responsible skill and the exact correction required.
@@ -253,6 +253,8 @@ Return a concise but complete report using this structure:
 
 ### Page [N] — Quality assurance
 
+**Final page file:** `pages/<continent>/page_[N].v[M].png`
+**Approved version for formatter manifest:** [M]
 **Overall result:** `PASS` / `PASS WITH NOTES` / `FAIL` / `BLOCKED`
 
 **Score:** [0–100], with the caveat that a high score cannot override a critical failure.
@@ -283,6 +285,34 @@ For each defect include:
 
 List optional improvements separately. Do not mix them with mandatory fixes.
 
+For every audited page, include this machine-readable approval record at the end of the report. Set `user_accepted_notes` to `true` only after the user explicitly accepts a `PASS WITH NOTES`; omit or set it to `false` otherwise:
+
+```json
+{
+  "page_number": 1,
+  "status": "PASS",
+  "version": 2,
+  "user_accepted_notes": false
+}
+```
+
+Before the formatter runs, combine these records into one manifest with every page from the approved production plan:
+
+```json
+{
+  "pages": {
+    "1": {"status": "PASS", "version": 2},
+    "2": {
+      "status": "PASS WITH NOTES",
+      "version": 1,
+      "user_accepted_notes": true
+    }
+  }
+}
+```
+
+The version must match the exact final-page filename. Re-audit and update the record whenever a new page version is generated.
+
 **Decision**
 - `PASS`: all mandatory checks pass; page can be approved for production.
 - `PASS WITH NOTES`: only minor issues remain; page can proceed if the user accepts them.
@@ -293,11 +323,11 @@ List optional improvements separately. Do not mix them with mandatory fixes.
 
 This skill audits one page at a time.
 
-1. Audit the compiled page.
+1. Audit the final page PNG and record its exact versioned filepath.
 2. Present the QA report and page preview.
 3. If FAIL, stop and route the defects to the responsible skill.
 4. After correction, audit the revised page again.
-5. Only after PASS or user-accepted PASS WITH NOTES should the page be marked QA-approved.
+5. Only after PASS or user-accepted PASS WITH NOTES should that exact version be marked QA-approved. Provide its page number, status and version so the formatter manifest can match it.
 6. Do not audit or approve the next page until the current page's status is resolved.
 
 The QA result is independent of the artist's and compiler's own self-checks. Their statements that a page passed do not replace this audit.

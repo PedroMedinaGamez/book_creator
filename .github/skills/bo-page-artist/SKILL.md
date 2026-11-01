@@ -79,8 +79,8 @@ Do not reserve a lower text area inside the illustration canvas. The compiler cr
 
 ## Image format
 
-- Use the illustration aspect ratio and pixel dimensions requested by the compiler, if supplied.
-- If no dimensions are supplied, create a portrait-friendly illustration asset at a high resolution suitable for placement in a portrait 8.5 × 11 inch page.
+- Every illustration must use the same moderately portrait **2:3 width-to-height ratio and 1024 × 1536 px canvas**. Do not vary the dimensions between pages or revisions.
+- The compiler places this image proportionally, centered inside the approximately 1779 × 2349 px upper frame on a 2550 × 3300 px page. Preserve the full illustration: do not crop or distort it. The frame may have even white side insets because its ratio differs slightly from the illustration ratio.
 - Pure white background.
 - Black-and-white line art only.
 - No bleed, frame, border or page layout.
@@ -94,13 +94,13 @@ Do not reserve a lower text area inside the illustration canvas. The compiler cr
 - Large, open areas easy to colour with crayons.
 - Bo and friendly animals: simple, rounded, cartoon-like.
 - For destination pages, when specified by the approved story row, make the conversation visible through the characters' expressions, facing direction and gestures: Bo observes the current place and listens or responds to its distinct, locally appropriate animal. If the row describes a drawable hint for the animal's riddle, show that hint as a simple, non-text visual cue without depicting the next destination itself. Do not add speech balloons or text.
-- Landmark or landscape: recognisable real-world silhouette and defining features, moderately realistic proportions with simplified details.
+- Landmark or landscape: faithfully represent the real place's recognizable silhouette, defining architectural or natural features, relative scale, and plausible proportions. Make the place more realistic and accurate in its physical form, while simplifying small details for colouring; do not invent, merge, or distort distinctive features.
 - The landmark may be more detailed than Bo but must remain easy to colour.
 - Clear visual hierarchy and uncluttered composition.
 - Use only the elements required by the narrative row.
 - Do not add the map as a recurring prop. Include it only when the current narrative row explicitly requires it; Bo does not need to hold it whenever it appears. Any map shown as a prop must obey the same approved scope and exclusion constraints as a map page.
 - Compose the scene deliberately: establish one focal action, a readable foreground/middle-ground/background, clear relative scale, and a camera angle that shows both Bo's interaction and the landmark's identifying silhouette. Keep all important forms separated and fully inside the image.
-- Make the current place immediately recognizable through a few verified architectural or landscape features, not invented ornament or excessive background detail. Use accurate local context for animals; do not imply an animal belongs at a monument or habitat where it would not naturally occur.
+- Make the current place immediately recognizable through a few verified architectural or landscape features, not invented ornament or excessive background detail. Its structure and proportions should be reasonably true to the real monument or landscape, even though the rendering is clean, simplified line art rather than photorealistic. Use accurate local context for animals; do not imply an animal belongs at a monument or habitat where it would not naturally occur.
 - For a conversation, use eye-lines, body orientation and gestures to make it legible without speech bubbles, lettering or symbols that could be mistaken for text. For a riddle clue, use only a simple visual hint described in the approved row, without accidentally showing or naming the next destination.
 - Adapt the layout to the requested image ratio and keep a comfortable white safety area around the subjects. Do not let the reference-image composition dictate the new scene's crop or background.
 
@@ -118,9 +118,9 @@ CHARACTER REFERENCE: The API request includes the repository image `Bo_image.jpg
 
 SCENE AND ACTION: [Describe the exact approved story scene, its single focal action, Bo's pose and expression, the other character's action, and how the interaction reads visually. Include only narrative-approved elements.]
 
-COMPOSITION: [Specify portrait/landscape aspect ratio and output dimensions, camera/viewpoint, subject placement and scale, recognizable landmark silhouette, and uncluttered foreground/middle-ground/background. Keep all important details fully visible with safe space around the edges.]
+COMPOSITION: Use the fixed 1024 × 1536 px, 2:3 portrait illustration canvas used on every page. The compiler will center it, without cropping or distortion, inside the approximately 1779 × 2349 px upper frame of the 2550 × 3300 px KDP page; a small, even white inset at the sides is acceptable. Specify camera/viewpoint, subject placement and scale, recognizable landmark silhouette, and uncluttered foreground/middle-ground/background. Keep all important details fully visible with safe space around the edges.
 
-LOCATION AND ANIMAL ACCURACY: [Name verified distinctive features of the actual monument or environment and the specified animal. Place the animal only in a plausible country/habitat context. Do not invent landmark details or imply unsupported wildlife associations.]
+LOCATION AND ANIMAL ACCURACY: [Name verified distinctive features of the actual monument or environment and the specified animal. Represent the real place with recognizable, reasonably accurate structure and proportions, simplified for colouring; do not invent or distort landmark features. Place the animal only in a plausible country/habitat context. Do not imply unsupported wildlife associations.]
 
 LINE ART AND COLOURING: Pure white background; black-and-white line art only. Thick, smooth, consistent black outlines; closed shapes wherever practical; large open areas easy to colour. Keep Bo and friendly animals simple, rounded and consistent with the reference. Use recognizable but simplified landmark details and a clear visual hierarchy.
 

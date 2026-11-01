@@ -1,17 +1,17 @@
 ---
 name: bo-page-compiler
-description: Creates a complete, copy-ready ChatGPT prompt to lay out an approved Bo illustration and its exact story text as a KDP-sized page, without redrawing the artwork or changing the text.
+description: Creates a complete page-layout prompt containing the exact story text and identifies the precise approved illustration file for final-page-ia to send with the prompt to the OpenAI API.
 ---
 
 # Bo Page Compiler
 
 ## Mission
 
-Create a **complete, page-specific prompt** for the user to paste into ChatGPT, combining:
+Create a **complete, page-specific prompt and API handoff** combining:
 1. an approved illustration-only asset from `bo-page-artist`;
 2. the matching page row and exact child-facing text from `bo-adventure-storyteller`.
 
-The user attaches the approved illustration and runs the prompt in ChatGPT to produce the finished page. This skill prepares the prompt; it does not itself generate or export the finished image. Do not call an image-generation API.
+`final-page-ia` sends the exact prompt and identified approved illustration file to the OpenAI Images API to produce the finished page. This skill prepares the prompt and identifies the image path; it does not itself generate or export the finished page.
 
 The prompt must describe one consistent interior-page template: one framed illustration above and a separate framed text panel below.
 Write the prompt in the user's language (Spanish by default), while preserving the approved page text exactly in its source language.
@@ -19,6 +19,7 @@ Write the prompt in the user's language (Spanish by default), while preserving t
 ## Required inputs
 
 - Approved illustration asset for the current page.
+- Exact repository path of that approved illustration, including its version directory.
 - Matching narrative table row.
 - Exact story text for that page.
 - Page number and page role.
@@ -30,17 +31,19 @@ If the illustration has not been approved by the user, do not compile it as fina
 ## Separation of responsibilities
 
 - `bo-page-artist` creates artwork only.
-- `bo-page-compiler` creates the prompt for page layout and typography; it does not create the page image.
+- `bo-page-compiler` creates the prompt with exact page text and identifies the precise illustration file; it does not create the page image.
+- `final-page-ia` uploads that precise illustration and the compiler prompt to the image API and saves the finished page.
 - `bo-adventure-storyteller` owns the exact story text and narrative content.
-- `bo-kdp-formatter` assembles final, quality-approved page PNGs into the book's print-ready PDF.
+- `bo-kdp-formatter` assembles the latest QA-approved page PNG versions into the book's print-ready PDF.
 
-The user specifically wants to use a ChatGPT prompt for page composition. Make the prompt explicit that the supplied illustration is final and must be placed, not regenerated. Do not claim that a prompt guarantees exact text or print metadata: the returned page must pass the quality audit and technical preflight before it is treated as print-ready.
+Make the prompt explicit that the supplied illustration is final and must be placed, not regenerated, and that all supplied page text must be rendered exactly. Do not claim that a prompt guarantees exact text or print metadata: the returned page must pass the quality audit and technical preflight before it is treated as print-ready.
 
 ## Default print specification
 
 - Trim size: **8.5 × 11 inches**, portrait.
 - Recommended production resolution: **300 DPI**.
 - Target raster page: **2550 × 3300 px**.
+- Every completed page must use exactly this same 2550 × 3300 px canvas so all pages fit the 8.5 × 11 inch KDP interior.
 - Background: pure white.
 - Interior printing: black ink line art and black text.
 - Outer page margin: approximately **0.22 inch** on every side.
@@ -68,7 +71,7 @@ Keep both frames inside the canvas, with equal widths and a consistent gap. Thes
 ## Illustration placement
 
 - Place the approved artwork inside the upper frame.
-- Preserve the artwork's aspect ratio; do not stretch it.
+- Every approved illustration uses the same 1024 × 1536 px (2:3) canvas. Place it centered in the upper frame with aspect-ratio-preserving containment; do not stretch, crop, or distort it. Because the frame is approximately 1779 × 2349 px, retain even white side insets rather than forcing the image to fill the frame.
 - Preserve the original background and line art.
 - Maximize visible image size with a minimal, even inset of approximately 0.05 inch.
 - Do not stretch, distort, crop, redraw, regenerate, retouch, recolour, add to or remove anything.
@@ -106,19 +109,19 @@ The prompt must emphasize that every word and punctuation mark is authoritative 
 
 ## Procedure
 
-1. Confirm the current illustration is explicitly approved and matches the narrative row.
+1. Confirm the current illustration is explicitly approved, matches the narrative row, and its exact repository path and version are known.
 2. Confirm the exact approved child-facing text and the page number/role. Do not invent missing information.
 3. If an input is missing, mismatched or ambiguous, ask for it rather than reconstructing it.
-4. Fill every part of the prompt template below with page-specific details and the exact complete text. Do not leave placeholders.
-5. Present the full prompt in one code block and tell the user to attach the approved illustration in ChatGPT.
-6. Wait for the user to return the generated page. Do not claim to have generated, inspected, saved or approved an image that was not provided.
-7. Check the returned page against the template and exact source text. If any element fails or cannot be verified, explain the issue and provide a targeted revision prompt; do not call it print-ready.
-8. Pass only a user-approved page that meets the quality gate to `bo-page-quality-auditor`. Only audited pages proceed to `bo-kdp-formatter`.
+4. Fill every part of the prompt template below with page-specific details and the exact complete text. Do not leave placeholders or omit story text.
+5. Return the complete prompt in one code block and a separate handoff record containing the exact illustration path, continent, page number and approved source text. Never say "latest illustration" without giving the exact file path.
+6. Pass the prompt and handoff record to `final-page-ia`. It uploads precisely that illustration path, not another version or an image inferred from the page number.
+7. Check the returned page against the template and exact source text. If any element fails or cannot be verified, explain the issue and request a correction prompt; do not call it print-ready.
+8. Pass the exact saved page version to `bo-page-quality-auditor`. Only auditor-approved versions proceed to `bo-kdp-formatter`.
 9. Do not proceed to the next page until the current final page is explicitly approved.
 
 ## Copy-ready prompt template
 
-Maqueta una página interior completa para un libro infantil para colorear. Adjunto la ilustración terminada y aprobada para esta página. Tu tarea es exclusivamente maquetarla.
+Maqueta una página interior completa para un libro infantil para colorear. La API recibirá como imagen de referencia el archivo exacto indicado en la entrega del compiler. Usa ese archivo como ilustración terminada y aprobada; tu tarea es exclusivamente maquetarla.
 
 FORMATO DE SALIDA: Devuelve exactamente una página PNG vertical de 2550 × 3300 píxeles y 300 DPI, equivalente a 8,5 × 11 pulgadas. Usa fondo blanco puro (#FFFFFF) y sin sangrado. No devuelvas una maqueta, descripción, alternativas ni páginas adicionales.
 
@@ -136,17 +139,17 @@ NO HAGAS LO SIGUIENTE: crear o modificar la ilustración; recortarla o deformarl
 
 Antes de devolver la página, comprueba las dimensiones exactas, los dos marcos, los márgenes, la alineación, la separación, la conservación de la imagen, la integridad del texto y su legibilidad. Devuelve únicamente el PNG.
 
-Sustituye el marcador de texto por el texto exacto aprobado antes de presentar el prompt. Incluye únicamente el texto de esta página.
+Sustituye el marcador de texto por el texto exacto aprobado antes de presentar el prompt. Incluye únicamente el texto de esta página. Fuera del bloque del prompt, incluye una ficha de entrega: continente; número de página; ruta relativa exacta de la ilustración aprobada (incluido `vN`); texto aprobado exacto utilizado.
 
 ## Prompt handoff quality gate
 
-- [ ] Correct approved illustration and matching narrative row are available.
+- [ ] Correct approved illustration, exact versioned repository path and matching narrative row are available.
 - [ ] Prompt includes the complete exact source text and preserves its paragraph breaks.
 - [ ] Prompt specifies the fixed 8.5 × 11 inch, 2550 × 3300 px, 300 DPI template.
 - [ ] Prompt requires exactly two matching frames and the stated dimensions, gap and margins.
 - [ ] Prompt prohibits image alteration, text changes and extra elements.
-- [ ] Prompt is complete, page-specific, in the user's language, in one copy-ready code block, with no unresolved placeholders.
-- [ ] User is told to attach the approved illustration to ChatGPT.
+- [ ] Prompt is complete, page-specific, in the user's language, with all approved text in one copy-ready block and no unresolved placeholders.
+- [ ] Handoff identifies the exact illustration filepath, including the version directory, for `final-page-ia`.
 - [ ] No claim is made that the resulting page has already been generated or technically verified.
 
 ## Human approval and sequencing

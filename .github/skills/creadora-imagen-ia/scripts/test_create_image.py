@@ -3,6 +3,7 @@ import contextlib
 import io
 import json
 import os
+import struct
 import sys
 import tempfile
 import unittest
@@ -12,11 +13,35 @@ from unittest.mock import patch
 import create_image
 
 
-PNG_BYTES = b"\x89PNG\r\n\x1a\nimage"
+PNG_BYTES = (
+    b"\x89PNG\r\n\x1a\n"
+    + struct.pack(">I", 13)
+    + b"IHDR"
+    + struct.pack(">II", 1024, 1536)
+)
 JPEG_BYTES = b"\xff\xd8\xffreference"
 
 
 class CreateImageTests(unittest.TestCase):
+    def test_model_default_does_not_read_another_environment_variable(self) -> None:
+        arguments = [
+            "create_image.py",
+            "--prompt",
+            "Approved prompt",
+            "--continent",
+            "Asia",
+            "--country",
+            "Not applicable",
+            "--monument",
+            "Opening",
+        ]
+        with patch.object(sys, "argv", arguments):
+            with patch.dict(os.environ, {"OPENAI_IMAGE_MODEL": "unexpected-model"}):
+                args = create_image.parse_args()
+
+        self.assertEqual(args.model, create_image.DEFAULT_MODEL)
+        self.assertEqual(args.size, create_image.ILLUSTRATION_SIZE)
+
     def test_builds_edit_payload_with_reference_and_exact_prompt(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             reference = Path(temporary_directory) / "Bo_image.jpg"
@@ -77,6 +102,42 @@ class CreateImageTests(unittest.TestCase):
         ):
             with self.assertRaisesRegex(RuntimeError, "no contiene un PNG válido"):
                 create_image.request_image({"prompt": "A test image"}, "test-secret")
+
+    def test_rejects_api_image_with_different_dimensions(self) -> None:
+        image_bytes = (
+            b"\x89PNG\r\n\x1a\n"
+            + struct.pack(">I", 13)
+            + b"IHDR"
+            + struct.pack(">II", 1024, 1024)
+        )
+        response_body = json.dumps(
+            {"data": [{"b64_json": base64.b64encode(image_bytes).decode("ascii")}]}
+        ).encode("utf-8")
+
+        with patch(
+            "create_image.urllib.request.urlopen",
+            return_value=io.BytesIO(response_body),
+        ):
+            with self.assertRaisesRegex(RuntimeError, "se requieren 1024 × 1536 px"):
+                create_image.request_image({"prompt": "A test image"}, "test-secret")
+
+    def test_rejects_custom_image_size(self) -> None:
+        arguments = [
+            "create_image.py",
+            "--prompt",
+            "Approved prompt",
+            "--continent",
+            "Asia",
+            "--country",
+            "Japan",
+            "--monument",
+            "Mount Fuji",
+            "--size",
+            "1024x1024",
+        ]
+        with patch.object(sys, "argv", arguments):
+            with self.assertRaises(SystemExit):
+                create_image.parse_args()
 
     def test_paid_request_requires_explicit_confirmation(self) -> None:
         arguments = [

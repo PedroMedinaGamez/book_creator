@@ -8,6 +8,7 @@ import base64
 import binascii
 import json
 import os
+import struct
 import sys
 import urllib.error
 import urllib.request
@@ -18,6 +19,8 @@ API_URL = "https://api.openai.com/v1/images/edits"
 DEFAULT_MODEL = "gpt-image-2.5-sunburst"
 MAX_DATA_URL_LENGTH = 20_971_520
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
+ILLUSTRATION_SIZE = "1024x1536"
+ILLUSTRATION_DIMENSIONS = (1024, 1536)
 SUPPORTED_IMAGE_TYPES = {
     ".jpg": ("image/jpeg", b"\xff\xd8\xff"),
     ".jpeg": ("image/jpeg", b"\xff\xd8\xff"),
@@ -117,8 +120,20 @@ def request_image(payload: dict[str, object], api_key: str) -> bytes:
         image_bytes = base64.b64decode(image_base64, validate=True)
     except (ValueError, binascii.Error) as error:
         raise RuntimeError(f"La imagen devuelta no es base64 válido: {error}") from None
-    if not image_bytes.startswith(PNG_SIGNATURE):
+    if (
+        len(image_bytes) < 24
+        or not image_bytes.startswith(PNG_SIGNATURE)
+        or image_bytes[12:16] != b"IHDR"
+    ):
         raise RuntimeError("La respuesta de la API no contiene un PNG válido.")
+    image_dimensions = struct.unpack(">II", image_bytes[16:24])
+    if image_dimensions != ILLUSTRATION_DIMENSIONS:
+        raise RuntimeError(
+            "La API devolvió una ilustración de "
+            f"{image_dimensions[0]} × {image_dimensions[1]} px; "
+            f"se requieren {ILLUSTRATION_DIMENSIONS[0]} × "
+            f"{ILLUSTRATION_DIMENSIONS[1]} px para mantener el formato del libro."
+        )
     return image_bytes
 
 
@@ -151,9 +166,14 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--output-root", type=Path, default=root / "images")
     parser.add_argument(
-        "--model", default=os.environ.get("OPENAI_IMAGE_MODEL", DEFAULT_MODEL)
+        "--model", default=DEFAULT_MODEL
     )
-    parser.add_argument("--size", default="1024x1536")
+    parser.add_argument(
+        "--size",
+        choices=(ILLUSTRATION_SIZE,),
+        default=ILLUSTRATION_SIZE,
+        help="Tamaño fijo para todas las ilustraciones del libro.",
+    )
     parser.add_argument(
         "--quality",
         choices=("low", "medium", "high", "xhigh", "max"),
