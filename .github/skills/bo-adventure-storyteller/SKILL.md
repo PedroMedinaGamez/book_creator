@@ -116,6 +116,15 @@ The final treasure should connect to the theme of discovery, friendship, curiosi
 
 The main deliverable is a **page-by-page table with one row per content page**. Do not provide only a synopsis.
 
+## Required planning document
+
+- Save the complete page plan to `dossier description/<continent-slug>/plan-de-paginas.md`, relative to the repository root. Create the directory if it does not exist. Use the same continent slug convention as the repository's asset paths (lowercase, normalized accents, hyphens between words); for example, `dossier description/asia/plan-de-paginas.md`.
+- The Markdown document is a required deliverable, not an optional export. Include the complete page-by-page table with all required columns and page text, followed by the story concept, destination mapping, continuity and illustration bible, child-interaction audit, fact-check and sensitivity notes, and production notes.
+- Add a short header identifying the continent, language, audience age, destination count, and any relevant user constraints. Keep all sections in the language requested for the story.
+- Also present the complete table and supporting deliverables in the response, and provide a link to the saved document. Do not claim it was saved unless the file was actually written successfully.
+- When the user gives new instructions, corrections, or approved content that changes the plan, read the existing document first and update this same file in place. Regenerate the affected table rows and all dependent sections so they remain consistent; preserve unchanged approved details and unrelated user notes. Do not create a second competing plan or append duplicate outdated tables. Then return the updated document link and summarize what changed.
+- If instructions change a destination, animal, route, text, page order, or production constraint, propagate the change everywhere it appears in the document (including the mapping, illustration notes, interactions, and production notes).
+
 Use these columns exactly:
 
 | Page | Page role | Graphic content summary | City / region | Country | Monument / landscape / setting | Local animal | Text appearing on the page | Impact on the story |

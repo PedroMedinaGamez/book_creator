@@ -1,6 +1,6 @@
 ---
 name: bo-page-compiler
-description: Creates a complete page-layout prompt containing the exact story text and identifies the precise approved illustration file for final-page-ia to send with the prompt to the OpenAI API.
+description: Creates complete page-layout prompts with exact story text and approved illustrations for final-page-ia. Supports compiling all eligible pages in a requested batch without intermediate approvals.
 ---
 
 # Bo Page Compiler
@@ -46,32 +46,33 @@ Make the prompt explicit that the supplied illustration is final and must be pla
 - Every completed page must use exactly this same 2550 × 3300 px canvas so all pages fit the 8.5 × 11 inch KDP interior.
 - Background: pure white.
 - Interior printing: black ink line art and black text.
-- Outer page margin: approximately **0.22 inch** on every side.
+- Match the Japan sample page: approximately **0.48 inch** outer margins at the sides, **0.20 inch** at the top, and **0.19 inch** at the bottom.
 - No bleed by default.
 - Two separate rectangular frames:
-  - both frames approximately **5.93 inches wide**, centered and aligned;
-  - upper illustration frame approximately **7.83 inches high**;
-  - lower text frame approximately **2.65 inches high**;
-  - white gap approximately **0.08 inch**.
+  - both frames approximately **7.55 inches wide**, centered and aligned;
+  - upper illustration frame approximately **8.00 inches high**;
+  - lower text frame approximately **2.50 inches high**;
+  - white gap approximately **0.12 inch**.
 - Rounded corners, matching between frames; uniform black outline approximately 2–2.5 pt at print size.
 
-These are a coherent starting geometry: the frame heights plus gap total 10.56 inches, leaving 0.22-inch top and bottom margins on an 11-inch page. Do not combine incompatible percentages or let frames exceed the canvas. If the user supplies an approved reference template, follow it while preserving the exact requested page size.
+These dimensions are measured from the Japan sample's illustration frame and text frame and fit the 8.5 × 11 inch canvas. Do not combine incompatible percentages or let frames exceed the canvas. If the user supplies an approved reference template, follow it while preserving the exact requested page size.
 
 ### Default geometry at 300 DPI
 
-For the default 8.5 × 11 inch page, the prompt should specify a 2550 × 3300 px portrait canvas, with approximate geometry:
-- outer margins: 66 px (0.22 inch);
-- centered frame width: 1779 px (5.93 inches);
-- upper frame height: 2349 px (7.83 inches);
-- gap: 24 px (0.08 inch);
-- lower text frame height: 795 px (2.65 inches).
+For the default 8.5 × 11 inch page, the prompt should specify a 2550 × 3300 px portrait canvas, with this measured sample geometry:
+- centered frame width: 2264 px (about 7.55 inches);
+- upper illustration frame height: 2399 px (about 8.00 inches);
+- gap: 35 px (about 0.12 inch);
+- lower text frame height: 749 px (about 2.50 inches);
+- horizontal side margins: about 143 px (0.48 inch);
+- top margin: about 61 px (0.20 inch); bottom margin: about 56 px (0.19 inch).
 
 Keep both frames inside the canvas, with equal widths and a consistent gap. These measurements take precedence over percentage descriptions if those would conflict.
 
 ## Illustration placement
 
 - Place the approved artwork inside the upper frame.
-- Every approved illustration uses the same 1024 × 1536 px (2:3) canvas. Place it centered in the upper frame with aspect-ratio-preserving containment; do not stretch, crop, or distort it. Because the frame is approximately 1779 × 2349 px, retain even white side insets rather than forcing the image to fill the frame.
+- Every approved illustration uses the same 1024 × 1085 px canvas, matching the Japan sample's upper-frame ratio (about 0.944:1). Place it centered in the upper frame with aspect-ratio-preserving containment; do not stretch, crop, or distort it. The ratios are nearly identical.
 - Preserve the original background and line art.
 - Maximize visible image size with a minimal, even inset of approximately 0.05 inch.
 - Do not stretch, distort, crop, redraw, regenerate, retouch, recolour, add to or remove anything.
@@ -111,13 +112,20 @@ The prompt must emphasize that every word and punctuation mark is authoritative 
 
 1. Confirm the current illustration is explicitly approved, matches the narrative row, and its exact repository path and version are known.
 2. Confirm the exact approved child-facing text and the page number/role. Do not invent missing information.
-3. If an input is missing, mismatched or ambiguous, ask for it rather than reconstructing it.
+3. If an input is missing, mismatched or ambiguous, ask for it rather than reconstructing it in single-page mode. In batch mode, mark that page blocked, continue with the other eligible pages, and report the blocked page with the batch instead of pausing to ask.
 4. Fill every part of the prompt template below with page-specific details and the exact complete text. Do not leave placeholders or omit story text.
 5. Return the complete prompt in one code block and a separate handoff record containing the exact illustration path, continent, page number and approved source text. Never say "latest illustration" without giving the exact file path.
 6. Pass the prompt and handoff record to `final-page-ia`. It uploads precisely that illustration path, not another version or an image inferred from the page number.
 7. Check the returned page against the template and exact source text. If any element fails or cannot be verified, explain the issue and request a correction prompt; do not call it print-ready.
 8. Pass the exact saved page version to `bo-page-quality-auditor`. Only auditor-approved versions proceed to `bo-kdp-formatter`.
-9. Do not proceed to the next page until the current final page is explicitly approved.
+9. In single-page mode, wait for the user's explicit approval of the current final page before moving to the next page. In an explicitly requested batch covering all pages in a defined plan, compile every eligible page without per-page approval pauses; maintain exact page-to-illustration and page-to-text matching, and collect the handoffs for the complete batch before returning them to `final-page-ia`.
+
+## Batch layout mode
+
+- Activate batch mode only when the user explicitly asks to lay out all pages or generate the complete set of finished pages at once, and the story plan defines the batch scope.
+- Use only illustrations already approved for layout, and only the exact page text and illustration paths specified by the plan. Do not skip a page silently; if its approved illustration or text is missing, mark that page blocked and continue preparing the other eligible pages.
+- Prepare an independent, complete prompt and exact handoff record for each page. Never combine multiple page illustrations or texts into a single page-generation request.
+- Return the batch handoffs together. Do not ask for approval after compiling each page, between handoffs, or before proceeding to the next eligible page. Do not pause the batch to request missing inputs; record the affected page as blocked and report it with the completed batch.
 
 ## Copy-ready prompt template
 
@@ -125,9 +133,9 @@ Maqueta una página interior completa para un libro infantil para colorear. La A
 
 FORMATO DE SALIDA: Devuelve exactamente una página PNG vertical de 2550 × 3300 píxeles y 300 DPI, equivalente a 8,5 × 11 pulgadas. Usa fondo blanco puro (#FFFFFF) y sin sangrado. No devuelvas una maqueta, descripción, alternativas ni páginas adicionales.
 
-PLANTILLA FIJA: Usa exactamente dos marcos rectangulares independientes, centrados, con esquinas redondeadas idénticas y el mismo ancho. Traza bordes negros finos y uniformes de aproximadamente 2–2,5 pt a tamaño de impresión. Centra ambos marcos horizontalmente. Deja aproximadamente 0,22 pulgadas de margen exterior superior e inferior y una separación blanca de 0,08 pulgadas. Usa un ancho de marco de aproximadamente 5,93 pulgadas. El marco superior de ilustración mide aproximadamente 7,83 pulgadas de alto y el marco inferior de texto, aproximadamente 2,65 pulgadas. Mantén toda la geometría dentro de la página. No añadas ningún otro marco, borde ni elemento de maquetación.
+PLANTILLA FIJA: Usa exactamente dos marcos rectangulares independientes, centrados, con esquinas redondeadas idénticas y el mismo ancho. Traza bordes negros finos y uniformes de aproximadamente 2–2,5 pt a tamaño de impresión. Usa la geometría medida de la página de referencia de Japón: marcos de aproximadamente 7,55 pulgadas (2264 px) de ancho; marco superior de ilustración de aproximadamente 8,00 pulgadas (2399 px) de alto; marco inferior de texto de aproximadamente 2,50 pulgadas (749 px) de alto; separación blanca de aproximadamente 0,12 pulgadas (35 px); márgenes laterales de 0,48 pulgadas (143 px), margen superior de 0,20 pulgadas (61 px) e inferior de 0,19 pulgadas (56 px). Mantén toda la geometría dentro del lienzo de 2550 × 3300 px. No añadas ningún otro marco, borde ni elemento de maquetación.
 
-MARCO SUPERIOR — ILUSTRACIÓN APROBADA: Usa la ilustración adjunta como arte definitivo. Colócala dentro del marco superior con una separación interior mínima y uniforme de aproximadamente 0,05 pulgadas. Conserva la proporción original y todos sus detalles. No la estires, deformes, recortes, redibujes, regeneres, retoques, recolorees, ni añadas o elimines elementos. Maximiza el tamaño visible sin recortar nada. Si no es posible, detente en lugar de alterar la ilustración.
+MARCO SUPERIOR — ILUSTRACIÓN APROBADA: Usa la ilustración adjunta como arte definitivo. Su proporción es 1024 × 1085 px, medida para coincidir con el marco de ilustración de la página de referencia de Japón (no con su panel de texto). Colócala dentro del marco superior conservando su proporción y todos sus detalles. No la estires, deformes, recortes, redibujes, regeneres, retoques, recolorees, ni añadas o elimines elementos. Maximiza el tamaño visible sin recortar nada. Si no es posible, detente en lugar de alterar la ilustración.
 
 MARCO INFERIOR — TEXTO EXACTO: Incluye únicamente el texto siguiente, conservando exactamente cada palabra, acento, signo de puntuación, diálogo y salto de párrafo. No añadas título, número de página, subtítulo, explicación ni ningún otro texto. Céntralo horizontalmente con una tipografía infantil redondeada y muy legible, en negro; idealmente de 15–17 pt a 300 DPI, con interlineado aproximado de 1,3–1,4 y separación cómoda entre párrafos. Usa el tamaño más grande que quepa. No reescribas ni omitas texto para que quepa; si no cabe de forma legible, detente y solicita una versión aprobada más breve.
 
@@ -146,15 +154,15 @@ Sustituye el marcador de texto por el texto exacto aprobado antes de presentar e
 - [ ] Correct approved illustration, exact versioned repository path and matching narrative row are available.
 - [ ] Prompt includes the complete exact source text and preserves its paragraph breaks.
 - [ ] Prompt specifies the fixed 8.5 × 11 inch, 2550 × 3300 px, 300 DPI template.
-- [ ] Prompt requires exactly two matching frames and the stated dimensions, gap and margins.
+- [ ] Prompt requires exactly two matching frames and the Japan sample's measured dimensions, gap and margins.
 - [ ] Prompt prohibits image alteration, text changes and extra elements.
 - [ ] Prompt is complete, page-specific, in the user's language, with all approved text in one copy-ready block and no unresolved placeholders.
 - [ ] Handoff identifies the exact illustration filepath, including the version directory, for `final-page-ia`.
 - [ ] No claim is made that the resulting page has already been generated or technically verified.
 
-## Human approval and sequencing
+## Review and sequencing
 
-After the user returns a page, ask:
+For a single-page request, after the user returns a page, ask:
 
 "La página maquetada [N] está lista para revisión. ¿La apruebas?"
 
@@ -165,4 +173,6 @@ If the user requests a change:
 - route story-copy changes to `bo-adventure-storyteller`;
 - rebuild the prompt with revised, approved inputs.
 
-Proceed to the next page only after explicit approval of the final composed page. Illustration approval alone does not approve the composed page.
+For a single-page request, proceed to the next page only after explicit approval of the final composed page. Illustration approval alone does not approve the composed page.
+
+For an explicitly requested full-page batch (for example, «haz todas las páginas» or «genera el libro completo»), do not stop for approval between pages or wait for approval of an individual composed page before continuing. After every eligible page has been composed and quality-audited, present the complete batch and its page-by-page audit results together and request one approval for the set. Do not send pages with a failed or blocked audit to `bo-kdp-formatter`. A batch request waives intermediate approval pauses only; it does not waive illustration approval, text accuracy, QA, or the user's final approval of the batch for print production.

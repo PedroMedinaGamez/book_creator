@@ -6,21 +6,24 @@ from __future__ import annotations
 import argparse
 import base64
 import binascii
+from io import BytesIO
 import json
 import os
-import struct
 import sys
 import urllib.error
 import urllib.request
 from pathlib import Path
+
+from PIL import Image, UnidentifiedImageError
 
 
 API_URL = "https://api.openai.com/v1/images/edits"
 DEFAULT_MODEL = "gpt-image-2.5-sunburst"
 MAX_DATA_URL_LENGTH = 20_971_520
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
-ILLUSTRATION_SIZE = "1024x1536"
-ILLUSTRATION_DIMENSIONS = (1024, 1536)
+API_IMAGE_SIZE = "1024x1024"
+API_IMAGE_DIMENSIONS = (1024, 1024)
+ILLUSTRATION_DIMENSIONS = (1024, 1085)
 SUPPORTED_IMAGE_TYPES = {
     ".jpg": ("image/jpeg", b"\xff\xd8\xff"),
     ".jpeg": ("image/jpeg", b"\xff\xd8\xff"),
@@ -80,6 +83,33 @@ def build_request_payload(
     }
 
 
+def fit_illustration_to_frame(image_bytes: bytes) -> bytes:
+    try:
+        with Image.open(BytesIO(image_bytes)) as api_image:
+            if api_image.format != "PNG":
+                raise RuntimeError("La API no devolvió una imagen PNG.")
+            if api_image.size != API_IMAGE_DIMENSIONS:
+                raise RuntimeError(
+                    "La API devolvió una ilustración de "
+                    f"{api_image.width} × {api_image.height} px; "
+                    f"se requieren {API_IMAGE_SIZE} para adaptar el resultado "
+                    "sin recortar ni deformar el dibujo."
+                )
+            artwork = api_image.convert("RGBA")
+    except UnidentifiedImageError as error:
+        raise RuntimeError(f"La API no devolvió un PNG válido: {error}") from None
+    except OSError as error:
+        raise RuntimeError(f"No se pudo leer el PNG devuelto por la API: {error}") from None
+
+    canvas = Image.new("RGBA", ILLUSTRATION_DIMENSIONS, (255, 255, 255, 255))
+    top = (ILLUSTRATION_DIMENSIONS[1] - API_IMAGE_DIMENSIONS[1]) // 2
+    canvas.alpha_composite(artwork, (0, top))
+
+    output = BytesIO()
+    canvas.convert("RGB").save(output, format="PNG", optimize=True)
+    return output.getvalue()
+
+
 def request_image(payload: dict[str, object], api_key: str) -> bytes:
     request = urllib.request.Request(
         API_URL,
@@ -120,21 +150,9 @@ def request_image(payload: dict[str, object], api_key: str) -> bytes:
         image_bytes = base64.b64decode(image_base64, validate=True)
     except (ValueError, binascii.Error) as error:
         raise RuntimeError(f"La imagen devuelta no es base64 válido: {error}") from None
-    if (
-        len(image_bytes) < 24
-        or not image_bytes.startswith(PNG_SIGNATURE)
-        or image_bytes[12:16] != b"IHDR"
-    ):
+    if not image_bytes.startswith(PNG_SIGNATURE):
         raise RuntimeError("La respuesta de la API no contiene un PNG válido.")
-    image_dimensions = struct.unpack(">II", image_bytes[16:24])
-    if image_dimensions != ILLUSTRATION_DIMENSIONS:
-        raise RuntimeError(
-            "La API devolvió una ilustración de "
-            f"{image_dimensions[0]} × {image_dimensions[1]} px; "
-            f"se requieren {ILLUSTRATION_DIMENSIONS[0]} × "
-            f"{ILLUSTRATION_DIMENSIONS[1]} px para mantener el formato del libro."
-        )
-    return image_bytes
+    return fit_illustration_to_frame(image_bytes)
 
 
 def parse_args() -> argparse.Namespace:
@@ -170,9 +188,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--size",
-        choices=(ILLUSTRATION_SIZE,),
-        default=ILLUSTRATION_SIZE,
-        help="Tamaño fijo para todas las ilustraciones del libro.",
+        choices=(API_IMAGE_SIZE,),
+        default=API_IMAGE_SIZE,
+        help=(
+            "Tamaño cuadrado requerido por la API; el PNG guardado se adapta "
+            "al formato del marco."
+        ),
     )
     parser.add_argument(
         "--quality",

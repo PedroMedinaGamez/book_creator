@@ -10,8 +10,8 @@ Una skill es un conjunto reutilizable de instrucciones que ayuda a un asistente 
 
 | Skill | Para qué sirve |
 |---|---|
-| `continental-explorer` | Sugiere rápidamente monumentos reconocidos en un continente y devuelve solo un JSON sencillo para que el usuario elija cuáles incluir. |
-| `bo-adventure-storyteller` | Usa los monumentos elegidos por el usuario para crear el plan de una historia de Bo, manteniendo el espíritu narrativo y el ritmo por páginas del libro europeo original. |
+| `continental-explorer` | Selecciona destinos reconocidos y visualmente variados para un continente y devuelve un JSON para la narración, sin pedir aprobación. |
+| `bo-adventure-storyteller` | Crea el plan completo página por página y lo guarda en `dossier description/<continente>/plan-de-paginas.md`; actualiza ese mismo documento al cambiar las instrucciones. |
 | `bo-page-artist` | Diseña un prompt detallado y preciso para la ilustración, con composición, exactitud del lugar, referencia de Bo y restricciones visuales. Revisa la imagen generada y espera aprobación. |
 | `creadora-imagen-ia` | Envía el prompt aprobado y `Bo_image.jpg` a la API de imágenes de OpenAI, descarga el PNG y lo guarda sin sobrescribir en `images/<continente>/<país>/vN/<monumento>.png`. |
 | `bo-image-generator` | Entrega el prompt para generación manual en ChatGPT y puede importar el PNG descargado manualmente. No llama a ninguna API. |
@@ -23,10 +23,10 @@ Una skill es un conjunto reutilizable de instrucciones que ayuda a un asistente 
 
 ## Flujo de trabajo sugerido
 
-1. **Elegir monumentos:** `continental-explorer` devuelve una lista breve en JSON; el usuario elige los lugares.
-2. **Planear la historia:** `bo-adventure-storyteller` crea el plan de páginas usando solo los monumentos elegidos.
+1. **Seleccionar destinos:** `continental-explorer` selecciona destinos en JSON sin pedir aprobación.
+2. **Planear la historia:** `bo-adventure-storyteller` crea el plan completo y lo guarda en `dossier description/<continente>/plan-de-paginas.md`.
 3. **Producir cada página:** `bo-page-artist` diseña el prompt y `creadora-imagen-ia` envía el prompt y `Bo_image.jpg` a la API de OpenAI, descarga el PNG y lo guarda como `images/<continente>/<país>/v1/<monumento>.png`. Las correcciones crean `v2`, `v3`, etc. La API requiere `OPENAI_API_KEY` local y puede facturarse aparte de ChatGPT; confirma cada generación, configura la clave localmente y no la compartas en el chat. El artista revisa la imagen y espera aprobación. Si se necesita otro idioma, `bo-professional-translator` prepara los textos aprobados para la traducción. Para generar manualmente en ChatGPT, usa `bo-image-generator`.
-4. **Maquetar y revisar:** `bo-page-compiler` entrega el prompt con el texto exacto y la ruta exacta de la ilustración aprobada. `final-page-ia` verifica el texto, envía ambos a la API y guarda `pages/<continente>/page_<n>.v1.png`. Cada corrección crea una versión nueva. El auditor revisa y aprueba la versión correspondiente.
+4. **Maquetar y revisar:** `bo-page-compiler` entrega el prompt con el texto exacto y la ruta exacta de la ilustración aprobada. `final-page-ia` verifica el texto, envía ambos a la API y guarda `pages/<continente>/page_<n>.v1.png`. Si se solicita explícitamente maquetar el plan completo de una vez, genera cada página con una llamada independiente sin aprobación intermedia, audita el lote y solicita una única aprobación final. Cada corrección crea una versión nueva y requiere autorización.
 5. **Preparar el libro:** solo después de auditar todas las páginas, `bo-kdp-formatter` usa la versión más alta de cada página, confirma que esa versión pasó QA y crea el PDF con una página blanca entre páginas consecutivas.
 
 Respeta los límites de cada skill: el compiler identifica la ilustración exacta; `final-page-ia` la combina con el texto del prompt; el auditor aprueba la versión concreta; el formateador solo elige versiones auditadas y las ensambla, sin rediseñar su contenido.
@@ -35,11 +35,11 @@ Respeta los límites de cada skill: el compiler identifica la ilustración exact
 
 El agente personalizado **Bo Continent Adventure** está en `.github/agents/bo-continent-adventure.agent.md`. Úsalo desde el selector de agentes de Copilot para coordinar las dos primeras skills:
 
-1. Ejecuta `continental-explorer` y presenta las sugerencias como JSON breve.
-2. Se detiene y espera a que elijas los monumentos.
-3. Usa únicamente los lugares elegidos con `bo-adventure-storyteller` para crear el plan completo página por página.
+1. Ejecuta `continental-explorer` para seleccionar destinos verificados y visualmente variados.
+2. Pasa todos los destinos seleccionados a `bo-adventure-storyteller`, sin pedir una aprobación intermedia.
+3. Guarda el plan completo y sus materiales de producción en `dossier description/<continente>/plan-de-paginas.md`; actualiza el archivo cuando el usuario aporte nuevas instrucciones.
 
-Si pides más opciones o cambias las restricciones, actualiza la lista y vuelve a esperar tu elección. El agente no debe comenzar la historia antes de que elijas.
+Si pides más destinos o cambias las restricciones, actualiza la selección y el mismo documento del plan.
 
 ## Estructura
 

@@ -3,23 +3,27 @@ import contextlib
 import io
 import json
 import os
-import struct
 import sys
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from PIL import Image
+
 import create_image
 
 
-PNG_BYTES = (
-    b"\x89PNG\r\n\x1a\n"
-    + struct.pack(">I", 13)
-    + b"IHDR"
-    + struct.pack(">II", 1024, 1536)
-)
 JPEG_BYTES = b"\xff\xd8\xffreference"
+
+
+def make_png(size: tuple[int, int], color: str = "black") -> bytes:
+    buffer = io.BytesIO()
+    Image.new("RGB", size, color).save(buffer, format="PNG")
+    return buffer.getvalue()
+
+
+API_PNG_BYTES = make_png(create_image.API_IMAGE_DIMENSIONS)
 
 
 class CreateImageTests(unittest.TestCase):
@@ -40,7 +44,7 @@ class CreateImageTests(unittest.TestCase):
                 args = create_image.parse_args()
 
         self.assertEqual(args.model, create_image.DEFAULT_MODEL)
-        self.assertEqual(args.size, create_image.ILLUSTRATION_SIZE)
+        self.assertEqual(args.size, create_image.API_IMAGE_SIZE)
 
     def test_builds_edit_payload_with_reference_and_exact_prompt(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -49,13 +53,13 @@ class CreateImageTests(unittest.TestCase):
 
             payload = create_image.build_request_payload(
                 "Exact artist prompt", [reference], "gpt-image-2.5-sunburst",
-                "1024x1536", "high"
+                create_image.API_IMAGE_SIZE, "high"
             )
 
         self.assertEqual(payload["prompt"], "Exact artist prompt")
         self.assertEqual(payload["model"], "gpt-image-2.5-sunburst")
         self.assertEqual(payload["output_format"], "png")
-        self.assertEqual(payload["size"], "1024x1536")
+        self.assertEqual(payload["size"], create_image.API_IMAGE_SIZE)
         self.assertEqual(
             payload["images"],
             [
@@ -68,7 +72,7 @@ class CreateImageTests(unittest.TestCase):
 
     def test_request_image_decodes_png_response(self) -> None:
         response_body = json.dumps(
-            {"data": [{"b64_json": base64.b64encode(PNG_BYTES).decode("ascii")}]}
+            {"data": [{"b64_json": base64.b64encode(API_PNG_BYTES).decode("ascii")}]}
         ).encode("utf-8")
         payload = {"prompt": "A test image"}
 
@@ -78,7 +82,10 @@ class CreateImageTests(unittest.TestCase):
         ) as urlopen:
             image_bytes = create_image.request_image(payload, "test-secret")
 
-        self.assertEqual(image_bytes, PNG_BYTES)
+        with Image.open(io.BytesIO(image_bytes)) as image:
+            self.assertEqual(image.size, create_image.ILLUSTRATION_DIMENSIONS)
+            self.assertEqual(image.getpixel((0, 0)), (255, 255, 255))
+            self.assertEqual(image.getpixel((0, 30)), (0, 0, 0))
         request = urlopen.call_args.args[0]
         self.assertEqual(request.full_url, create_image.API_URL)
         self.assertEqual(request.get_header("Authorization"), "Bearer test-secret")
@@ -100,16 +107,11 @@ class CreateImageTests(unittest.TestCase):
             "create_image.urllib.request.urlopen",
             return_value=io.BytesIO(response_body),
         ):
-            with self.assertRaisesRegex(RuntimeError, "no contiene un PNG válido"):
+            with self.assertRaisesRegex(RuntimeError, "PNG válido"):
                 create_image.request_image({"prompt": "A test image"}, "test-secret")
 
     def test_rejects_api_image_with_different_dimensions(self) -> None:
-        image_bytes = (
-            b"\x89PNG\r\n\x1a\n"
-            + struct.pack(">I", 13)
-            + b"IHDR"
-            + struct.pack(">II", 1024, 1024)
-        )
+        image_bytes = make_png((1024, 1536))
         response_body = json.dumps(
             {"data": [{"b64_json": base64.b64encode(image_bytes).decode("ascii")}]}
         ).encode("utf-8")
@@ -118,7 +120,7 @@ class CreateImageTests(unittest.TestCase):
             "create_image.urllib.request.urlopen",
             return_value=io.BytesIO(response_body),
         ):
-            with self.assertRaisesRegex(RuntimeError, "se requieren 1024 × 1536 px"):
+            with self.assertRaisesRegex(RuntimeError, "se requieren 1024x1024"):
                 create_image.request_image({"prompt": "A test image"}, "test-secret")
 
     def test_rejects_custom_image_size(self) -> None:
@@ -133,7 +135,7 @@ class CreateImageTests(unittest.TestCase):
             "--monument",
             "Mount Fuji",
             "--size",
-            "1024x1024",
+            "1024x1536",
         ]
         with patch.object(sys, "argv", arguments):
             with self.assertRaises(SystemExit):
@@ -167,7 +169,15 @@ class CreateImageTests(unittest.TestCase):
             reference.write_bytes(JPEG_BYTES)
             output_root = root / "images"
             response_body = json.dumps(
-                {"data": [{"b64_json": base64.b64encode(PNG_BYTES).decode("ascii")}]}
+                {
+                    "data": [
+                        {
+                            "b64_json": base64.b64encode(
+                                API_PNG_BYTES
+                            ).decode("ascii")
+                        }
+                    ]
+                }
             ).encode("utf-8")
             arguments = [
                 "create_image.py",
@@ -196,7 +206,8 @@ class CreateImageTests(unittest.TestCase):
 
             generated_file = output_root / "asia" / "japan" / "v1" / "himeji-castle.png"
             self.assertEqual(result, 0)
-            self.assertEqual(generated_file.read_bytes(), PNG_BYTES)
+            with Image.open(generated_file) as image:
+                self.assertEqual(image.size, create_image.ILLUSTRATION_DIMENSIONS)
 
 
 if __name__ == "__main__":

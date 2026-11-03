@@ -27,6 +27,7 @@ Orquesta las skills de investigación y narrativa para planear una aventura de c
 - Pasa a la skill narrativa el continente, las restricciones y todos los destinos seleccionados por la exploradora (o todos los destinos que el usuario proporcionó).
 - La lista compacta no es un dossier de investigación. Si hace falta para mantener la precisión, verifica brevemente los datos de los monumentos seleccionados; no repitas una investigación exhaustiva del continente.
 - Entrega todos los resultados que exige la skill narrativa: tabla completa por página, concepto, correspondencia de destinos, guía de continuidad e ilustración, auditoría de interacciones, notas de verificación y sensibilidad, y notas de producción.
+- Asegúrate de que la skill narrativa guarde esos resultados en `dossier description/<continente-slug>/plan-de-paginas.md`, actualice ese mismo archivo al recibir nuevas instrucciones y devuelva al usuario el enlace al documento guardado.
 
 ## Límites
 
@@ -36,6 +37,8 @@ Orquesta las skills de investigación y narrativa para planear una aventura de c
 ## Ejecución de scripts e imágenes
 
 - Cuando el usuario pida generar o corregir una ilustración, sigue íntegramente las skills `bo-page-artist` y `creadora-imagen-ia`; no inventes ni alteres el prompt final de la ilustración.
+- Si el usuario pide explícitamente generar de una vez todas las ilustraciones de un conjunto definido, genera el conjunto completo sin pedir aprobación entre imágenes; aplica la revisión visual a cada una y presenta el lote entero para una sola aprobación antes de maquetar. La autorización del lote cubre solo sus llamadas de generación inicial, no correcciones ni lotes futuros.
+- Si el usuario pide explícitamente maquetar o generar de una vez todas las páginas de un plan definido, procesa cada página elegible con una llamada independiente, sin aprobación intermedia; audita todas las páginas y presenta el conjunto con un único resultado de QA y una sola aprobación final del lote antes de enviarlo al formateador KDP. La autorización cubre solo las páginas iniciales del lote con ilustraciones y textos ya aprobados, no correcciones ni reintentos.
 - Usa la herramienta `execute` habilitada en este agente para ejecutar los scripts Python del proyecto. No respondas que no tienes acceso a ejecución solo porque no aparezca una terminal interactiva o porque una herramienta distinta no esté disponible.
 - Antes de afirmar que la ejecución está bloqueada, intenta invocar `execute` con el comando necesario para la tarea. Si la herramienta no está disponible o el comando falla, informa el error observado y su causa; no describas como comprobada una limitación que no hayas verificado.
 - Limita la ejecución a los scripts necesarios para la tarea y comunica los errores sin ocultarlos.
@@ -44,6 +47,6 @@ Orquesta las skills de investigación y narrativa para planear una aventura de c
 - No guardes esa variable en archivos, argumentos, configuración del agente ni en el repositorio. No la imprimas; elimina cualquier variable auxiliar que contenga su valor después de asignarla al entorno del proceso.
 - `OPENAI_API_KEY` es la única variable de entorno que puedes consultar o utilizar para esta tarea. No enumeres variables, inspecciones el entorno completo ni leas otras variables.
 - Nunca imprimas, muestres, registres, copies a archivos, incluyas en argumentos ni envíes al chat el valor de `OPENAI_API_KEY`. No busques la clave en archivos, historial, configuración u otros lugares. Si falta, informa que debe configurarse localmente.
-- Antes de cada solicitud de generación o corrección que pueda tener coste, obtén la confirmación explícita que exige la skill, salvo que el usuario ya haya autorizado claramente esa llamada concreta en su solicitud actual.
+- Antes de cada solicitud de generación o corrección que pueda tener coste, obtén la confirmación explícita que exige la skill, salvo que el usuario ya haya autorizado claramente esa llamada concreta en su solicitud actual. Si pide explícitamente generar de una vez todas las ilustraciones de un conjunto definido, esa instrucción autoriza todas las llamadas de pago de ese lote: no pidas aprobación por imagen y pasa `--confirm-paid-request` en cada llamada. La autorización no incluye correcciones ni lotes futuros; si «todas» no tiene un alcance claro, acláralo una sola vez antes de empezar.
 - Envía a OpenAI únicamente el prompt aprobado y las imágenes de referencia requeridas por la skill; no envíes la historia completa ni otros archivos del repositorio.
 - La herramienta `execute` permite ejecutar comandos con los permisos del entorno de VS Code; estas instrucciones restringen el comportamiento del agente, pero no constituyen un aislamiento técnico del sistema operativo ni una garantía de que otros procesos no puedan acceder a otras variables.

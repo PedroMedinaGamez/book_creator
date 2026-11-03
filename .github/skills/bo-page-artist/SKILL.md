@@ -29,19 +29,27 @@ Optional:
 
 If the narrative row or research details are missing, request them. Do not invent a location or redesign the story.
 
-## One-illustration prompt and approval workflow
+## Illustration generation and approval workflow
 
-1. Select the first page that requires an illustration, or the page number specified by the user.
+For a single illustration:
+1. Select the page specified by the user, or the first page that requires an illustration.
 2. Read the current narrative row and relevant explorer details.
 3. Locate the exact repository file `Bo_image.jpg`.
 4. Design and check the complete page-specific prompt using the art direction, prompt template and quality gate below. Resolve every placeholder and specify the exact composition; do not make the API skill invent missing scene details.
 5. Hand the exact final prompt, continent, country, monument, repository `Bo_image.jpg`, and (for a correction) the previous generated image to `creadora-imagen-ia`. Do not alter the prompt during handoff.
-6. The API skill must request user confirmation before any paid API call unless the user has already explicitly authorized generation in the current request. Do not claim generation has started until the request is confirmed and executed.
+6. The API skill must request user confirmation before any paid API call unless the user has explicitly authorized this generation in the current request. Do not claim generation has started until the request is authorized and executed.
 7. Review the returned image against the narrative row and artistic quality gate. Do not claim that a prompt or API response guarantees a perfect result.
 8. If the user requests a correction, identify the specific defects, revise the prompt to fix only those defects, and explicitly identify `Bo_image.jpg` as the character reference and the prior generated image as the base composition. Preserve every approved element not named for correction. Pass the revised prompt, previous image and `Bo_image.jpg` to `creadora-imagen-ia`. Corrections create a new version; never overwrite the prior image.
 9. Do not proceed to another page until the user explicitly approves the current illustration.
 
-Never interpret silence or a request for changes as approval. Approval applies only to the current illustration.
+For an explicitly requested batch of all illustrations in a defined story or destination set:
+1. Prepare a complete, page-specific prompt for every illustrated narrative row before generating.
+2. Treat the user's explicit request to generate the whole defined set in one go as authorization for each paid request in that batch. Pass each prompt to `creadora-imagen-ia` and do not pause for approval between images.
+3. Review every returned image against its narrative row and the artistic quality gate. Record any defects without automatically retrying or silently approving the image.
+4. After the batch is complete, present all generated images together and ask once whether the user approves the set or wants changes to specific pages. Do not send images with unresolved critical defects to `bo-page-compiler`.
+5. Batch authorization does not cover corrections, additional destinations or later batches. Obtain fresh authorization for any new paid requests unless the user explicitly includes them in a new batch request.
+
+Never interpret silence or a request for changes as approval. In single-image mode, approval applies only to that illustration; in batch mode, obtain one explicit approval for the set before composition.
 
 ## Master character reference
 
@@ -79,8 +87,8 @@ Do not reserve a lower text area inside the illustration canvas. The compiler cr
 
 ## Image format
 
-- Every illustration must use the same moderately portrait **2:3 width-to-height ratio and 1024 × 1536 px canvas**. Do not vary the dimensions between pages or revisions.
-- The compiler places this image proportionally, centered inside the approximately 1779 × 2349 px upper frame on a 2550 × 3300 px page. Preserve the full illustration: do not crop or distort it. The frame may have even white side insets because its ratio differs slightly from the illustration ratio.
+- Every illustration must use the same near-square portrait **1024 × 1085 px canvas** (width-to-height ratio ≈ **0.944:1**, about 17:18). This matches the upper illustration frame measured from the Japan sample page; exclude the lower text frame when comparing proportions. Do not use the elongated 2:3 ratio or vary dimensions between pages.
+- The image API returns a 1024 × 1024 px square; `creadora-imagen-ia` centers it on the fixed 1024 × 1085 px white canvas without cropping or distortion. Compose the focal scene for the near-square frame, keeping important details inside the safe area.
 - Pure white background.
 - Black-and-white line art only.
 - No bleed, frame, border or page layout.
@@ -118,7 +126,7 @@ CHARACTER REFERENCE: The API request includes the repository image `Bo_image.jpg
 
 SCENE AND ACTION: [Describe the exact approved story scene, its single focal action, Bo's pose and expression, the other character's action, and how the interaction reads visually. Include only narrative-approved elements.]
 
-COMPOSITION: Use the fixed 1024 × 1536 px, 2:3 portrait illustration canvas used on every page. The compiler will center it, without cropping or distortion, inside the approximately 1779 × 2349 px upper frame of the 2550 × 3300 px KDP page; a small, even white inset at the sides is acceptable. Specify camera/viewpoint, subject placement and scale, recognizable landmark silhouette, and uncluttered foreground/middle-ground/background. Keep all important details fully visible with safe space around the edges.
+COMPOSITION: Use the fixed 1024 × 1085 px near-square portrait canvas used on every page (width-to-height ratio approximately 0.944:1, close to 17:18). Match the Japan sample's upper illustration frame only; do not include or measure its separate lower text frame. The image API source is square and the image-generation workflow adds only white padding at the top and bottom to produce this final canvas. Specify camera/viewpoint, subject placement and scale, recognizable landmark silhouette, and uncluttered foreground/middle-ground/background. Keep all important details fully visible with safe space around the edges.
 
 LOCATION AND ANIMAL ACCURACY: [Name verified distinctive features of the actual monument or environment and the specified animal. Represent the real place with recognizable, reasonably accurate structure and proportions, simplified for colouring; do not invent or distort landmark features. Place the animal only in a plausible country/habitat context. Do not imply unsupported wildlife associations.]
 
@@ -149,7 +157,7 @@ Before generation, ensure the prompt matches the approved narrative row and veri
 - [ ] Pure white background; no colour, grey or shading.
 - [ ] No text, typography, frames, borders or page-layout elements.
 - [ ] No important subject is cropped.
-- [ ] Image aspect ratio matches the compiler's request.
+- [ ] Image aspect ratio matches the Japan sample's upper illustration frame (approximately 0.944:1), not the lower text frame or the full page.
 
 If any check fails, revise the same illustration before presenting it.
 
@@ -159,6 +167,6 @@ Show only the current illustration asset and ask:
 
 "Illustration for page [N] is ready. Do you approve it, or would you like any changes?"
 
-Do not create or preview the next illustration until explicit approval.
+Use this single-image response only for a single-image request. For an explicitly authorized batch, finish creating and checking all requested illustrations first, then present the complete set and ask for approval once.
 
 If approved, mark the illustration approved and pass its asset plus the matching narrative row to `bo-page-compiler`. Do not add the frames or text yourself.

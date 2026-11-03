@@ -39,7 +39,7 @@ For each page, obtain:
    - approved target-language text;
    - target language and regional variant;
    - translator's notes for culturally adapted expressions, sound effects or wordplay.
-7. **Production specification**, defaulting to 8.5 × 11 inches, 300 DPI, the approved two-frame page template and its approximately 0.22-inch outer white margins.
+7. **Production specification**, defaulting to 8.5 × 11 inches, 300 DPI, the approved two-frame page template and the Japan sample's measured outer margins (about 0.48 inch at the sides and 0.19–0.20 inch vertically).
 
 If a required reference is unavailable, do not guess. Mark the relevant check **NOT VERIFIABLE** and the page **BLOCKED** if the missing evidence is necessary to validate it.
 
@@ -146,6 +146,7 @@ Do not retranslate the page independently and silently replace the approved tran
 ## Audit C — frames and page composition
 
 - [ ] There are exactly two separate frames for a standard story page: upper illustration frame and lower text frame.
+- [ ] Frame geometry matches the Japan sample: upper frame about 2264 × 2399 px, lower frame about 2264 × 749 px, and the illustration asset is the near-square 1024 × 1085 px format.
 - [ ] Both frames are clean, rectangular, aligned and visually consistent.
 - [ ] Frame strokes are smooth, continuous and black.
 - [ ] No broken, doubled, skewed or uneven frame edges.
@@ -180,7 +181,7 @@ Default expected output:
 - Trim size: 8.5 × 11 inches, portrait.
 - Resolution: 300 DPI.
 - Raster equivalent: 2550 × 3300 pixels.
-- Outer white margin: approximately 0.22 inch per the approved compiler template. Separately verify KDP safe-area compliance; do not assume the template margin alone satisfies KDP.
+- Outer white margins per the Japan sample template: approximately 0.48 inch at the sides, 0.20 inch at the top and 0.19 inch at the bottom. Separately verify KDP safe-area compliance; do not assume the template margin alone satisfies KDP.
 - No bleed unless explicitly requested.
 - Final page PNG must open and render correctly. The book-level PDF is created later by `bo-kdp-formatter`.
 
