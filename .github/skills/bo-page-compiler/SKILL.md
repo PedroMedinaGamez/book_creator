@@ -46,37 +46,38 @@ Make the prompt explicit that the supplied illustration is final and must be pla
 - Every completed page must use exactly this same 2550 × 3300 px canvas so all pages fit the 8.5 × 11 inch KDP interior.
 - Background: pure white.
 - Interior printing: black ink line art and black text.
-- Match the Japan sample page: approximately **0.48 inch** outer margins at the sides, **0.20 inch** at the top, and **0.19 inch** at the bottom.
+- Keep at least **0.25 inch** at the outer edge and the KDP-required inside/gutter margin (at least **0.375 inch** for a short book); mirror the inside margin for verso and recto pages. Use **0.20 inch** at the top and **0.19 inch** at the bottom unless the print specification requires more.
 - No bleed by default.
 - Two separate rectangular frames:
-  - both frames approximately **7.55 inches wide**, centered and aligned;
-  - upper illustration frame approximately **8.00 inches high**;
-  - lower text frame approximately **2.50 inches high**;
+  - both frames use the maximum width allowed by the safe margins; for 0.375-inch inside and 0.25-inch outside margins, this is **7.875 inches** (about **2362 px**), aligned within the safe area and mirrored for verso/recto pages;
+  - upper illustration frame follows the approved art's aspect ratio. For the standard 1024 × 1085 px illustration, it is about **7.875 × 8.34 inches** (2362 × 2502 px);
+  - the lower text frame uses only the height needed for the exact text, up to the remaining safe area (about **2.15 inches / 645 px** with the standard geometry);
   - white gap approximately **0.12 inch**.
 - Rounded corners, matching between frames; uniform black outline approximately 2–2.5 pt at print size.
 
-These dimensions are measured from the Japan sample's illustration frame and text frame and fit the 8.5 × 11 inch canvas. Do not combine incompatible percentages or let frames exceed the canvas. If the user supplies an approved reference template, follow it while preserving the exact requested page size.
+The illustration is the primary content and must occupy at least **70% of the full 8.5 × 11-inch page area**, with a preferred target around **75% where the approved art's aspect ratio and print-safe margins permit**. Calculate this from the placed rectangle of the approved illustration (its full image footprint, including its original white background), divided by 2550 × 3300 px; do not count extra blank frame space or added padding. Do not combine incompatible dimensions, let frames exceed the canvas, or reduce required KDP margins to reach the target. For the standard 1024 × 1085 px art and 0.375/0.25-inch side margins, maximum undistorted artwork occupies about **70.2%** of the page; this is the practical limit for that aspect ratio. If the required gutter or the approved art's aspect ratio makes 70% impossible, flag the layout as blocked and request an approved layout/artwork change instead of cropping or distorting the art.
 
 ### Default geometry at 300 DPI
 
-For the default 8.5 × 11 inch page, the prompt should specify a 2550 × 3300 px portrait canvas, with this measured sample geometry:
-- centered frame width: 2264 px (about 7.55 inches);
-- upper illustration frame height: 2399 px (about 8.00 inches);
-- gap: 35 px (about 0.12 inch);
-- lower text frame height: 749 px (about 2.50 inches);
-- horizontal side margins: about 143 px (0.48 inch);
-- top margin: about 61 px (0.20 inch); bottom margin: about 56 px (0.19 inch).
+For the default 8.5 × 11 inch page and 1024 × 1085 px approved art, specify:
+- canvas: 2550 × 3300 px;
+- both frame widths: about 2362 px (7.875 inches), with inside/outside margins mirrored for verso/recto;
+- upper illustration frame: about 2362 × 2502 px (7.875 × 8.34 inches), matching the approved art's ratio;
+- placed illustration footprint: about 5,910,000 px, or **70.2%** of the full page;
+- gap: about 36 px (0.12 inch);
+- maximum lower text frame height: about 645 px (2.15 inches), including its border;
+- top margin: about 60 px (0.20 inch); bottom margin: about 57 px (0.19 inch).
 
-Keep both frames inside the canvas, with equal widths and a consistent gap. These measurements take precedence over percentage descriptions if those would conflict.
+Keep both frames inside the canvas and use the exact approved art ratio. Recalculate width from the actual KDP gutter/outer-margin requirement and height from the art ratio; do not reuse these pixel dimensions blindly for different page counts, margins, or artwork ratios.
 
 ## Illustration placement
 
 - Place the approved artwork inside the upper frame.
-- Every approved illustration uses the same 1024 × 1085 px canvas, matching the Japan sample's upper-frame ratio (about 0.944:1). Place it centered in the upper frame with aspect-ratio-preserving containment; do not stretch, crop, or distort it. The ratios are nearly identical.
+- Standard approved illustrations use a 1024 × 1085 px canvas (about 0.944:1). Place the entire artwork at the largest size that fits the safe frame with its aspect ratio preserved. Do not stretch, crop, distort, or add blank padding outside the approved image.
 - Preserve the original background and line art.
-- Maximize visible image size with a minimal, even inset of approximately 0.05 inch.
+- Maximize visible image size within the print-safe frame; keep only a minimal inset needed to prevent the art touching the border.
 - Do not stretch, distort, crop, redraw, regenerate, retouch, recolour, add to or remove anything.
-- If it cannot fit without cropping or distortion, stop and request a correctly proportioned approved illustration.
+- If the placed image footprint cannot reach 70% of the page without cropping, distortion, or unsafe margins, stop and request an approved layout/artwork change.
 
 ## Text typesetting
 
@@ -94,12 +95,17 @@ Do not paraphrase, translate, correct, shorten, expand or add any words.
 - Plain white background.
 - Separate rectangular frame.
 - No illustration, decorative graphics or watermark behind the words.
-- Large, rounded, friendly children's font in solid black, centered horizontally.
-- Target 15–17 pt at 300 DPI, with comfortable 1.3–1.4 line spacing and paragraph spacing.
+- Match the lettering in the approved visual reference [pages/africa/page_6.v3.png](../../../pages/africa/page_6.v3.png): a rounded, handwritten-looking sans serif with thick black strokes, smooth curves and simple lowercase forms. The exact font is unknown; reproduce its appearance consistently rather than claiming a font name.
+- The six-printed-line reference has an approximately **2362 × 954 px** lower frame and a visible text block of **1780 × 835 px**, centered at about 75% of frame width and 87% of frame height, with roughly **290 px** side padding and **60 px** top/bottom padding. These are measurements of the reference only: they cannot be used as fixed dimensions alongside the minimum 70% illustration-area requirement.
+- The standard illustration leaves at most about **645 px** for the lower frame, including its border, at the default 8.5 × 11-inch trim and safe margins. Calculate the actual remaining safe space for each page and size both the panel and text block to fit within it; the text frame must never force the illustration below 70% of the page. Center the text block horizontally and vertically in its panel.
+- Treat the reference's **120 px** line pitch, **1–3 px** within-paragraph contour gaps, **70 px** before “Stamp!”, and **46 px** before the final paragraph as visual starting points, not hard constraints. The font family/style, regular/bold weights, and apparent character height are a book-wide design system: keep them virtually identical across pages. First use the available text width and sensible wrapping; then make only minimal reductions to paragraph gaps and line pitch to fit the actual wrapped line count. Do not redesign individual pages' typography to make room for the illustration.
+- Set **“Stamp!”** in bold without making it larger than the surrounding text. Keep other text in the regular weight.
+- Destination copy has three semantic lines (place, stamp, animal clue), which may wrap. Do not force six printed lines or add text to fill the reference block. Preserve the reference's typeface appearance and proportions as closely as possible within the space available. Keep apparent character height at the reference size whenever possible; if absolutely necessary, reduce it by no more than **5%** and use that same size consistently across all pages in the book, not just the crowded page. First adjust line wrapping, then reduce paragraph gaps and line pitch slightly (no more than **5%** from the reference). If the exact text still cannot fit legibly within these small adjustments while preserving the 70% illustration minimum and print-safe margins, stop and request an approved shorter text; never shrink the illustration below the minimum or make a larger typography change on a single page.
 - Sound words should be italicized when indicated by the source text.
 - Text must remain fully inside the panel with adequate padding.
 - Use a font with full support for the page language and its accents.
-- Use the largest size that fits legibly; never omit, rewrite or shrink excessively to conceal overflow.
+- Keep typeface, apparent letter height, weight and line pitch virtually identical across pages. Any necessary scale/spacing adjustment is limited to 5%, applied consistently to the whole book, and must not be used to conceal overflow. Do not infer a point size from the PNG.
+- Size the text panel to the exact approved text, using the remaining safe vertical area after the illustration and gap. A shorter text may use a shorter panel; it must not cause the illustration to be reduced below its 70% page-area minimum.
 
 If the text does not fit:
 1. try sensible line wrapping and paragraph spacing adjustments;
@@ -133,11 +139,11 @@ Maqueta una página interior completa para un libro infantil para colorear. La A
 
 FORMATO DE SALIDA: Devuelve exactamente una página PNG vertical de 2550 × 3300 píxeles y 300 DPI, equivalente a 8,5 × 11 pulgadas. Usa fondo blanco puro (#FFFFFF) y sin sangrado. No devuelvas una maqueta, descripción, alternativas ni páginas adicionales.
 
-PLANTILLA FIJA: Usa exactamente dos marcos rectangulares independientes, centrados, con esquinas redondeadas idénticas y el mismo ancho. Traza bordes negros finos y uniformes de aproximadamente 2–2,5 pt a tamaño de impresión. Usa la geometría medida de la página de referencia de Japón: marcos de aproximadamente 7,55 pulgadas (2264 px) de ancho; marco superior de ilustración de aproximadamente 8,00 pulgadas (2399 px) de alto; marco inferior de texto de aproximadamente 2,50 pulgadas (749 px) de alto; separación blanca de aproximadamente 0,12 pulgadas (35 px); márgenes laterales de 0,48 pulgadas (143 px), margen superior de 0,20 pulgadas (61 px) e inferior de 0,19 pulgadas (56 px). Mantén toda la geometría dentro del lienzo de 2550 × 3300 px. No añadas ningún otro marco, borde ni elemento de maquetación.
+PLANTILLA DE IMPRESIÓN: Devuelve una página de 2550 × 3300 px (8,5 × 11 pulgadas, 300 DPI), fondo blanco y sin sangrado. Usa exactamente dos marcos rectangulares independientes, con esquinas redondeadas idénticas y del mismo ancho, alineados dentro del área segura de impresión (no necesariamente centrados respecto a todo el lienzo); refleja la posición para páginas pares e impares. Ajusta el ancho máximo a los márgenes KDP necesarios para el grosor final del libro: al menos 0,25 pulgadas en el borde exterior y el margen interior requerido (al menos 0,375 pulgadas para un libro corto). Para la ilustración adjunta de 1024 × 1085 px, usa el mayor tamaño que cabe sin recortar ni deformar; con esos márgenes, el marco superior mide aproximadamente 2362 × 2502 px (7,875 × 8,34 pulgadas), y la huella rectangular de la ilustración ocupa alrededor del 70,2% del área total de página. Cuenta el rectángulo de la imagen aprobada completa (incluido su fondo blanco original), no el espacio vacío añadido entre la imagen y el marco. Deja una separación blanca aproximada de 36 px (0,12 pulgadas), margen superior de unos 60 px (0,20 pulgadas) e inferior de unos 57 px (0,19 pulgadas). Ajusta el marco inferior al texto exacto y al espacio seguro restante (máximo aproximado 645 px / 2,15 pulgadas con esta geometría). Si el margen interior requerido es mayor, recalcula las dimensiones y comprueba que la huella de la imagen aprobada siga ocupando al menos el 70% de toda la página; si no es posible, detente e informa del conflicto. No añadas ningún otro marco ni elemento de maquetación.
 
-MARCO SUPERIOR — ILUSTRACIÓN APROBADA: Usa la ilustración adjunta como arte definitivo. Su proporción es 1024 × 1085 px, medida para coincidir con el marco de ilustración de la página de referencia de Japón (no con su panel de texto). Colócala dentro del marco superior conservando su proporción y todos sus detalles. No la estires, deformes, recortes, redibujes, regeneres, retoques, recolorees, ni añadas o elimines elementos. Maximiza el tamaño visible sin recortar nada. Si no es posible, detente en lugar de alterar la ilustración.
+MARCO SUPERIOR — ILUSTRACIÓN APROBADA: Usa la ilustración adjunta como arte definitivo y colócala completa dentro del marco, conservando su proporción y todos sus detalles. No la estires, deformes, recortes, redibujes, regeneres, retoques, recolorees, ni añadas o elimines elementos. Maximiza el tamaño del archivo de imagen completo dentro de los márgenes de impresión. El objetivo es que la huella rectangular de la imagen ocupe entre el 70% y el 75% de toda la página siempre que lo permitan su proporción y los márgenes seguros; nunca menos del 70%. El fondo blanco que ya forma parte del archivo aprobado cuenta dentro de su huella; no añadas espacio en blanco entre la imagen y el marco. Si no es posible cumplir el mínimo, detente en lugar de alterar la imagen o invadir los márgenes.
 
-MARCO INFERIOR — TEXTO EXACTO: Incluye únicamente el texto siguiente, conservando exactamente cada palabra, acento, signo de puntuación, diálogo y salto de párrafo. No añadas título, número de página, subtítulo, explicación ni ningún otro texto. Céntralo horizontalmente con una tipografía infantil redondeada y muy legible, en negro; idealmente de 15–17 pt a 300 DPI, con interlineado aproximado de 1,3–1,4 y separación cómoda entre párrafos. Usa el tamaño más grande que quepa. No reescribas ni omitas texto para que quepa; si no cabe de forma legible, detente y solicita una versión aprobada más breve.
+MARCO INFERIOR — TEXTO EXACTO: Incluye únicamente el texto siguiente, conservando exactamente cada palabra, acento, signo de puntuación y salto de párrafo. No añadas título, número de página, subtítulo, explicación ni ningún otro texto. Imita la referencia visual pages/africa/page_6.v3.png: sans serif redondeada de aspecto manuscrito, trazos negros gruesos y curvas suaves. Centra el bloque completo en el panel. Las medidas de la referencia de seis líneas (marco de 2362 × 954 px, bloque visible de 1780 × 835 px, paso vertical de 120 px y sus separaciones entre párrafos) son solo una guía visual; no las impongas como dimensiones, pues la ilustración debe conservar al menos el 70% del área total de página. En esta plantilla, el panel inferior suele tener como máximo unos 645 px de alto. Calcula el espacio restante real después de colocar la ilustración y ajusta a él el panel y el bloque de texto. Mantén en todas las páginas la misma fuente de aspecto, peso y altura aparente de letra de la referencia; deben verse prácticamente iguales. Primero utiliza el ancho seguro disponible y ajusta el salto de línea; si hace falta, reduce los espacios entre párrafos y el paso vertical solo un poco, hasta un 5%. Reduce la altura aparente de letra como último recurso y nunca más de un 5%; cualquier cambio de tamaño se aplica de forma uniforme a todas las páginas, no solo a esta. Escribe “Stamp!” en negrita sin hacerlo más grande que las demás letras. No fuerces seis líneas impresas ni añadas texto para llenar espacio. Nunca reduzcas la ilustración por debajo del 70%, invadas márgenes ni recortes el texto. Si el texto exacto no cabe de manera legible con estos ajustes mínimos, detente y solicita una versión aprobada más breve; no cambies notablemente la tipografía de esta página.
 
 <TEXTO_DE_LA_PAGINA>
 [Inserta el texto completo aprobado para esta página, respetando los saltos de párrafo.]
@@ -154,7 +160,9 @@ Sustituye el marcador de texto por el texto exacto aprobado antes de presentar e
 - [ ] Correct approved illustration, exact versioned repository path and matching narrative row are available.
 - [ ] Prompt includes the complete exact source text and preserves its paragraph breaks.
 - [ ] Prompt specifies the fixed 8.5 × 11 inch, 2550 × 3300 px, 300 DPI template.
-- [ ] Prompt requires exactly two matching frames and the Japan sample's measured dimensions, gap and margins.
+- [ ] Prompt requires the placed rectangle of the complete approved illustration to occupy at least 70% of the full page area, preferably about 75% where the approved aspect ratio and safe margins allow.
+- [ ] Prompt uses 8.5 × 11-inch KDP-safe geometry recalculated for the final gutter and exact approved art ratio, not the old Japan sample dimensions.
+- [ ] Prompt matches the lettering in `pages/africa/page_6.v3.png`; treats its six-line pixel dimensions as references only; fits the panel and text block to the actual safe space while keeping the illustration at or above 70%; keeps typography virtually identical across pages (maximum 5% adjustment, applied consistently book-wide); and sets “Stamp!” bold without enlarging it.
 - [ ] Prompt prohibits image alteration, text changes and extra elements.
 - [ ] Prompt is complete, page-specific, in the user's language, with all approved text in one copy-ready block and no unresolved placeholders.
 - [ ] Handoff identifies the exact illustration filepath, including the version directory, for `final-page-ia`.

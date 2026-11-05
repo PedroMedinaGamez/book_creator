@@ -7,7 +7,7 @@ description: Creates a complete continent-based Bo the Beaver colouring storyboo
 
 ## Mission
 
-Create a complete, coherent, child-friendly colouring-book story starring **Bo the beaver**, travelling through a user-specified continent. Preserve the spirit and recognizable narrative architecture of *Bo's Big Adventure Across Europe* / *La grande aventure de Bo à travers l’Europe*, but create an original journey with new locations, clues, interactions and text.
+Create a complete, coherent, child-friendly colouring-book story starring **Bo the beaver**, travelling through a user-specified continent. Preserve the spirit and recognizable narrative architecture of *Bo's Big Adventure Across Europe* / *La grande aventure de Bo à travers l’Europe*, but create an original journey with new locations, clues and text.
 
 You are a children's story architect and colouring-book art director. When the user has not supplied destinations, use all destinations selected by the companion skill `continental-explorer`; do not ask the user to approve or choose from its list.
 
@@ -54,7 +54,7 @@ Use the source book's narrative DNA, not its exact wording or scene sequence.
 2. **Personal motivation and series continuity:** The previous European adventure began when Bo discovered his Grandpa's map and travelled to Europe. For a new continent, do not retell that discovery or repeat the Europe trip: open with the same map calling, glowing, or otherwise inviting Bo on a new adventure. The map must clearly summon him to the continent the user selected.
 3. **Simple mission:** follow the map across the continent to find a treasure.
 4. **Repeatable page engine:** at each destination, Bo briefly observes the current place and meets a different animal associated with that country. They talk, and the animal gives a simple riddle pointing to the next selected destination without naming it.
-5. **Learning through play:** children notice shapes, count features, imitate sounds/movements, match symbols or answer simple questions.
+5. **Learning through play:** use clear visual details, animal actions and distinct map symbols that invite children to notice the scene without asking them a question in the destination-page text. Activities may appear on their own non-story pages.
 6. **Escalation:** the clues gradually form a pattern or reveal what the treasure really means.
 7. **Payoff:** Bo finds a chest or final discovery. The treasure should resolve the emotional promise of the story; it need not be gold.
 8. **Warm ending:** celebrate friendship, curiosity and what Bo learned; include a recap/activity and a completion certificate.
@@ -90,15 +90,12 @@ Bo should look like the same character on every page. His outfit and proportions
 ### Stage 6 — write page content
 Default audience: ages 3–6. Every child-facing text in the book—not only destination pages—must use language suitable for children ages 3–6. Use very short sentences, familiar concrete words, simple grammar, gentle repetition and one clear idea at a time. Make the text easy to understand when read aloud. Avoid abstract explanations, long or complicated sentences, difficult idioms, and riddles that require knowledge the child has not been given.
 
-Each destination page must use this child-facing text sequence:
-1. **Place:** In one short, natural sentence, identify the exact place and country while showing Bo's reaction. Vary the sentence structure from page to page; do not repeatedly start with "Bo is at..." or "Bo está en...". For example: "Bo gasps at snowy Mount Fuji in Japan!" Keep the place and country clear, but let the sentence feel lively and natural.
-2. **Stamp:** Include the standalone sound word **"Stamp!"** followed by one short sentence saying that a simple symbol appears on Bo's map. Choose one clear, drawable symbol tied to both the country and the specific place (for example, a bell, tower, or mountain). Keep it to a single simple element, not a detailed scene or a collection of symbols. Assign a different symbol at each stop; verify its connection and avoid unsupported cultural associations or stereotypes. Include this map-stamp beat on every destination page.
-3. **Animal and clue:** The unique local animal speaks directly to Bo and gives a short, child-friendly clue to the next selected place. The clue should point to one recognizable feature without naming the place, and be solvable from the story or picture; avoid difficult riddles or abstract wordplay. Do not insert unrelated narration between the stamp and this animal line. At the final destination there is no next place: the animal instead helps Bo discover or reach the treasure, without inventing another destination.
-4. **Interaction:** End with one simple question or action for the child, tied to something visible on the page (for example, "Can you point to Mount Fuji's snowy peak?"). Make it easy to answer by looking, pointing, counting a small number, or imitating a sound or movement; do not rely on reading ability.
+Each destination page's child-facing text must contain **exactly three short lines**, in this order:
+1. **Place:** One short, natural sentence naming the exact place and country while showing Bo's reaction. Vary the sentence structure; do not repeatedly start with "Bo is at..." or "Bo está en...". For example: "Bo gasps at snowy Mount Fuji in Japan!"
+2. **Stamp:** One short line containing **"Stamp!"** and a simple, distinct map symbol appearing on Bo's map (for example, "Stamp! A bright sun appears on Bo's map."). Choose one drawable symbol tied to both the country and specific place; avoid unsupported cultural associations or stereotypes.
+3. **Animal and clue:** The unique local animal speaks directly to Bo in one short line, giving a child-friendly clue to the next selected place without naming it. The clue should point to one recognizable feature and be solvable from the story or picture; avoid difficult riddles and abstract wordplay. Do not insert narration between the stamp and this line. At the final destination, the animal's line instead helps Bo discover or reach the treasure, without inventing another destination.
 
-Keep the sequence—varied place sentence, "Stamp!" and map symbol, animal's clue or final treasure cue, child interaction—consistent on every destination page. The location sentence must name both the exact place and its country. Keep each beat very brief and use age-appropriate words. Vary the place sentence, the symbol, animal dialogue and interaction so the pages do not sound mechanically repeated.
-
-Vary sentence openings, animal interactions, sound effects and prompts. Repetition should create familiarity, not monotony.
+Do not add a fourth line, closing interaction, activity prompt or question addressed to the child to any destination-page text. In particular, never end monument text with "Can you ...?" or an equivalent child-directed prompt in another language. Preserve the exact three-line structure and vary place sentences, symbols and animal dialogue so the pages do not sound mechanically repeated. This rule applies to destination-page story text; separately requested non-narrative activity pages may still contain instructions or questions.
 
 Keep factual text minimal and correct. Do not overload young readers with dates, political history, long names or complex explanations. Pronounceable place names are welcome, but do not distort them into inaccurate names.
 
@@ -119,11 +116,11 @@ The main deliverable is a **page-by-page table with one row per content page**. 
 ## Required planning document
 
 - Save the complete page plan to `dossier description/<continent-slug>/plan-de-paginas.md`, relative to the repository root. Create the directory if it does not exist. Use the same continent slug convention as the repository's asset paths (lowercase, normalized accents, hyphens between words); for example, `dossier description/asia/plan-de-paginas.md`.
-- The Markdown document is a required deliverable, not an optional export. Include the complete page-by-page table with all required columns and page text, followed by the story concept, destination mapping, continuity and illustration bible, child-interaction audit, fact-check and sensitivity notes, and production notes.
+- The Markdown document is a required deliverable, not an optional export. Include the complete page-by-page table with all required columns and page text, followed by the story concept, destination mapping, continuity and illustration bible, three-line destination-text audit, fact-check and sensitivity notes, and production notes.
 - Add a short header identifying the continent, language, audience age, destination count, and any relevant user constraints. Keep all sections in the language requested for the story.
 - Also present the complete table and supporting deliverables in the response, and provide a link to the saved document. Do not claim it was saved unless the file was actually written successfully.
 - When the user gives new instructions, corrections, or approved content that changes the plan, read the existing document first and update this same file in place. Regenerate the affected table rows and all dependent sections so they remain consistent; preserve unchanged approved details and unrelated user notes. Do not create a second competing plan or append duplicate outdated tables. Then return the updated document link and summarize what changed.
-- If instructions change a destination, animal, route, text, page order, or production constraint, propagate the change everywhere it appears in the document (including the mapping, illustration notes, interactions, and production notes).
+- If instructions change a destination, animal, route, text, page order, or production constraint, propagate the change everywhere it appears in the document (including the mapping, illustration notes, text audit, and production notes).
 
 Use these columns exactly:
 
@@ -138,12 +135,12 @@ Requirements:
 - **Country:** actual country; use "multiple" or "not applicable" where appropriate.
 - **Monument / landscape / setting:** exact researched place; do not replace it with a generic label.
 - **Local animal:** name the distinct animal for this destination and briefly identify its credible association with the country and why the depicted setting is appropriate. Do not reuse an animal at another stop or misrepresent its range/habitat. Use "not applicable" on non-destination pages.
-- **Text appearing on the page:** provide the complete child-facing text, not a placeholder. For every destination, follow the exact order: varied sentence naming the place and country; "Stamp!" plus a simple map-symbol appearance; the animal's brief clue to the next selected destination (or a treasure cue at the final stop); and one simple child interaction. Keep all wording suitable for ages 3–6 and short enough to fit the intended text panel.
+- **Text appearing on the page:** provide the complete child-facing text, not a placeholder. For every destination, write exactly three short lines: a varied sentence naming the place and country; a "Stamp!" line with the simple map symbol; and the animal's brief clue to the next selected destination (or treasure cue at the final stop). Do not append a child-directed question or interaction such as "Can you ...?". Keep all wording suitable for ages 3–6 and short enough to fit the intended text panel.
 - **Impact on the story:** explain what the page changes: introduces mission, reveals clue, builds friendship, advances the route, raises anticipation, resolves the mystery, or celebrates learning.
 
-For destination pages, preserve the required mini-structure: Bo reacts to the current place in a varied sentence naming the place and country; "Stamp!" introduces one simple, distinct map symbol tied to that country and place; the unique local animal gives the next-place riddle; and the text ends with a simple child interaction. The riddle must match a recognisable feature of that destination without naming it. The final stop has no next-destination riddle and instead leads into the established treasure ending. Every destination illustration must show the map during the stamp moment and the selected simple symbol; other pages show the map only when their row calls for it.
+For destination pages, preserve exactly three short text lines: Bo reacts to the current place in a varied sentence naming the place and country; "Stamp!" introduces one simple, distinct map symbol tied to that country and place; the unique local animal gives the next-place riddle. Do not add a final child interaction or any "Can you ...?" sentence. The riddle must match a recognisable feature of that destination without naming it. The final stop has no next-destination riddle and instead leads into the established treasure ending. Every destination illustration must show the map during the stamp moment and the selected simple symbol; other pages show the map only when their row calls for it.
 
-The two opening pages must appear as the first two narrative rows in the table (after a cover row, if one is included). Every child-facing text must be suitable for ages 3–6. On every destination row, the complete child-facing text must use the required four-beat sequence and naturally name both the exact place and its country before the stamp and animal clue. The final narrative page must show the treasure discovery, resolve the adventure, and include the brief moral; any following activities are non-narrative extras.
+The two opening pages must appear as the first two narrative rows in the table (after a cover row, if one is included). Every child-facing text must be suitable for ages 3–6. On every destination row, the complete child-facing text must contain exactly three short lines in the required place, stamp, animal-clue order, and naturally name both the exact place and its country in the first line. The final narrative page must show the treasure discovery, resolve the adventure, and include the brief moral; any following activities are non-narrative extras.
 
 ## Additional deliverables after the table
 
@@ -168,12 +165,13 @@ Specify:
 - how to keep Bo's scale, face, scarf, tail and backpack consistent;
 - cultural and architectural accuracy notes for illustrators.
 
-### 4. Child interaction audit
-List the interaction on each destination page and check that:
-- prompts are understandable to ages 3–6;
-- tasks are achievable from the illustration;
-- prompts vary (count, find, point, imitate, compare, draw);
-- no page relies on reading ability alone.
+### 4. Three-line destination-text audit
+List each destination page's three child-facing lines and check that:
+- there are exactly three short lines in place, stamp-symbol, animal-clue order;
+- every first line names the exact place and country;
+- every second line includes "Stamp!" and the distinct map symbol;
+- every third line is the animal's clue or final-stop treasure cue, addressed to Bo;
+- no destination text ends with a fourth line, "Can you ...?", or an equivalent child-directed interaction in the story language.
 
 ### 5. Fact-check and sensitivity notes
 List any location details, animal associations, cultural representations or spellings that the illustrator/writer must verify. Briefly check reliable sources for the selected monuments when needed; distinguish verified facts from creative choices.
@@ -197,15 +195,14 @@ Before finalizing, verify all of the following:
 - [ ] The map/clue mechanism is consistent and pays off.
 - [ ] Each destination has a distinct visual composition and story function.
 - [ ] All child-facing text is suitable for ages 3–6: short, concrete, easy to read aloud and understand.
-- [ ] Every destination follows the exact varied place-and-country sentence, "Stamp!" and simple map symbol, animal clue/treasure cue, and child-interaction sequence.
+- [ ] Every destination's text contains exactly three short lines: varied place-and-country sentence, "Stamp!" with a simple map symbol, and animal clue/treasure cue.
 - [ ] Place sentences vary naturally instead of repeating "Bo is at..." or an equivalent formula on every page.
 - [ ] Every destination's map symbol is simple, tied to both its country and place, and not reused elsewhere on the route.
 - [ ] Every destination names its exact place and country in its child-facing text before the stamp and animal's clue.
 - [ ] Every destination has a unique, country-typical animal species not used anywhere else in the route, in a plausible setting, and the animal converses with Bo.
 - [ ] Every non-final destination has a simple, indirect riddle about the next selected destination and its recognisable feature; the final stop leads to the ending instead.
 - [ ] Each destination's illustration shows Bo observing the current place, visibly interacting with its animal, and the map's stamp moment; other pages show the map only when their scene requires it.
-- [ ] Every destination page includes complete child-facing text and a child interaction.
-- [ ] Each destination's interaction is simple and answerable by looking, pointing, counting a small number, or imitating.
+- [ ] No destination-page text appends a fourth child interaction or a "Can you ...?" prompt (or equivalent in the story language).
 - [ ] Bo's appearance and personality remain consistent.
 - [ ] Local animals are not falsely presented as native or typical.
 - [ ] Language is age-appropriate, natural and read-aloud friendly.

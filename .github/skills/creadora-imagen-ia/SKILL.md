@@ -14,9 +14,9 @@ Esta skill solo genera la ilustración. No crea marcos, texto editorial ni la p�
 
 ## Formato y fidelidad visual
 
-- Todas las ilustraciones guardadas deben medir exactamente **1024 × 1085 px**, con una proporción ancho:alto aproximada de **0,944:1** (casi 17:18, casi cuadrada y solo un poco más alta que ancha). Esta proporción se midió en el marco superior de ilustración de la página de Japón, sin incluir el marco de texto. No uses 2:3.
+- Todas las ilustraciones guardadas deben medir exactamente **1024 × 1085 px**, con una proporción ancho:alto aproximada de **0,944:1** (casi 17:18, casi cuadrada y solo un poco más alta que ancha). Esta proporción permite al compiler maximizar el área visible en una página KDP de 8,5 × 11 pulgadas sin recortar ni deformar la ilustración. No uses 2:3.
 - La API genera un original cuadrado de **1024 × 1024 px**. El script lo centra en un lienzo blanco fijo de 1024 × 1085 px, añadiendo 30 px blancos arriba y 31 px abajo; no recorta ni deforma el dibujo. Rechaza respuestas de la API con otras dimensiones.
-- En la página KDP de 2550 × 3300 px, el marco de Japón mide aproximadamente 2264 × 2399 px. El compiler debe colocar la ilustración completa dentro del marco superior, conservando su proporción y sin recorte ni deformación.
+- En una página KDP de 2550 × 3300 px, el compiler debe colocar la ilustración completa dentro del mayor marco superior permitido por el margen interior/gutter y el margen exterior requeridos, conservando su proporción y sin recorte ni deformación. El compiler debe colocar la ilustración completa dentro del marco superior, conservando su proporción y sin recorte ni deformación.
 - El prompt aprobado debe pedir la proporción final 1024 × 1085 px (0,944:1), y que el monumento o paisaje conserve su silueta, rasgos distintivos, escala y proporciones reales reconocibles, simplificadas para colorear. La representación debe ser más fiel a la realidad, no fotográfica ni cargada de texturas. Si el prompt pide 2:3 o deja ambigua la fidelidad del lugar, pide que `bo-page-artist` lo corrija; no reescribas ni completes el prompt por tu cuenta.
 
 ## Entradas necesarias

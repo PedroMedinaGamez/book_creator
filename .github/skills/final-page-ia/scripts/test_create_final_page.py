@@ -38,9 +38,11 @@ class FinalPageTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
             illustration = root / "approved-illustration.png"
-            previous_page = root / "page_1.v1.png"
+            previous_page = root / "page_7.v2.png"
+            style_reference = root / "page_6.v3.png"
             illustration.write_bytes(png_bytes())
             previous_page.write_bytes(png_bytes())
+            style_reference.write_bytes(png_bytes())
 
             payload = create_final_page.build_payload(
                 "Exact page prompt",
@@ -48,11 +50,12 @@ class FinalPageTests(unittest.TestCase):
                 previous_page,
                 "gpt-image-2.5-sunburst",
                 "2496x3232",
+                style_reference=style_reference,
             )
 
         self.assertEqual(payload["prompt"], "Exact page prompt")
         self.assertEqual(payload["size"], "2496x3232")
-        self.assertEqual(len(payload["images"]), 2)
+        self.assertEqual(len(payload["images"]), 3)
 
     def test_normalizes_page_without_changing_portrait_layout(self) -> None:
         normalized_bytes = create_final_page.normalize_page(png_bytes((2496, 3232)))

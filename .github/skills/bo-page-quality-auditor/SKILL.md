@@ -39,7 +39,7 @@ For each page, obtain:
    - approved target-language text;
    - target language and regional variant;
    - translator's notes for culturally adapted expressions, sound effects or wordplay.
-7. **Production specification**, defaulting to 8.5 × 11 inches, 300 DPI, the approved two-frame page template and the Japan sample's measured outer margins (about 0.48 inch at the sides and 0.19–0.20 inch vertically).
+7. **Production specification**, defaulting to 8.5 × 11 inches, 300 DPI, the approved two-frame page template and the KDP-required inside/gutter and outside margins for the final page count.
 
 If a required reference is unavailable, do not guess. Mark the relevant check **NOT VERIFIABLE** and the page **BLOCKED** if the missing evidence is necessary to validate it.
 
@@ -146,7 +146,8 @@ Do not retranslate the page independently and silently replace the approved tran
 ## Audit C — frames and page composition
 
 - [ ] There are exactly two separate frames for a standard story page: upper illustration frame and lower text frame.
-- [ ] Frame geometry matches the Japan sample: upper frame about 2264 × 2399 px, lower frame about 2264 × 749 px, and the illustration asset is the near-square 1024 × 1085 px format.
+- [ ] The placed rectangle of the complete approved illustration occupies at least 70% of the full 2550 × 3300 px page area (target about 75% where its aspect ratio and KDP-safe margins permit). Count the image's original white background as part of its footprint, but not extra blank space between the image and its frame.
+- [ ] The upper frame fits the exact approved illustration aspect ratio at the largest size allowed by the actual KDP gutter and outer margins. For 1024 × 1085 px art with 0.375-inch inside and 0.25-inch outside margins, the approximate maximum is 2362 × 2502 px (about 70.2% of the page); do not apply these dimensions blindly to other art ratios or page counts.
 - [ ] Both frames are clean, rectangular, aligned and visually consistent.
 - [ ] Frame strokes are smooth, continuous and black.
 - [ ] No broken, doubled, skewed or uneven frame edges.
@@ -155,6 +156,11 @@ Do not retranslate the page independently and silently replace the approved tran
 - [ ] The lower frame contains only the story text on a plain white background.
 - [ ] No stray marks, decorative artefacts or image fragments appear in the text panel.
 - [ ] The page has balanced visual proportions consistent with the approved source-book layout.
+- [ ] The text matches the approved visual reference `pages/africa/page_6.v3.png`: rounded handwritten-looking sans serif, thick black strokes, centered block, and virtually identical apparent letter height, weight and line pitch across pages.
+- [ ] “Stamp!” is bold without being larger than the surrounding text. Judge apparent pixel size and fit; do not infer a point size from the PNG.
+- [ ] Use the reference's approximate spacing (120 px line pitch; 1–3 px contour gap within paragraphs; about 70 px before “Stamp!” and 46 px before the final paragraph) as a visual guide, adapting it only slightly to the actual text wrapping and remaining safe area.
+- [ ] Any necessary reduction in apparent letter height or line pitch is no more than 5% and is applied consistently book-wide, not selectively to one page; if the exact text cannot fit within that small adjustment, flag it for approved copy revision instead.
+- [ ] The 2362 × 954 px panel and 1780 × 835 px block are treated as six-printed-line reference measurements, not mandatory dimensions. The text panel fits the exact text in the safe area (normally no more than about 645 px high) without reducing the illustration below 70%.
 - [ ] Outer white margins are clean and consistent.
 - [ ] No important illustration detail is obscured by the frame.
 
@@ -181,7 +187,7 @@ Default expected output:
 - Trim size: 8.5 × 11 inches, portrait.
 - Resolution: 300 DPI.
 - Raster equivalent: 2550 × 3300 pixels.
-- Outer white margins per the Japan sample template: approximately 0.48 inch at the sides, 0.20 inch at the top and 0.19 inch at the bottom. Separately verify KDP safe-area compliance; do not assume the template margin alone satisfies KDP.
+- Outer/inside white margins must meet the KDP requirements for the final page count (at least 0.25 inch outer and 0.375 inch inner for a short book). Keep approximately 0.20 inch at the top and 0.19 inch at the bottom unless the print specification requires more.
 - No bleed unless explicitly requested.
 - Final page PNG must open and render correctly. The book-level PDF is created later by `bo-kdp-formatter`.
 

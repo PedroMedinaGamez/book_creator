@@ -87,10 +87,13 @@ def build_payload(
     previous_page: Path | None,
     model: str,
     size: str,
+    style_reference: Path | None = None,
 ) -> dict[str, object]:
     images = [read_image_data_url(illustration)]
     if previous_page is not None:
         images.append(read_image_data_url(previous_page))
+    if style_reference is not None:
+        images.append(read_image_data_url(style_reference))
     return {
         "model": model,
         "images": [{"image_url": image} for image in images],
@@ -217,6 +220,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--continent", required=True)
     parser.add_argument("--page-number", required=True, type=int)
     parser.add_argument("--previous-page", type=Path)
+    parser.add_argument(
+        "--style-reference",
+        type=Path,
+        help="Imagen adicional de referencia para conservar la tipograf?a o el estilo.",
+    )
     parser.add_argument("--pages-root", type=Path, default=Path("pages"))
     parser.add_argument(
         "--model", default=os.environ.get("OPENAI_IMAGE_MODEL", DEFAULT_MODEL)
@@ -260,6 +268,7 @@ def main() -> int:
             args.previous_page,
             args.model,
             args.size,
+            args.style_reference,
         )
         generated_bytes = request_page(payload, api_key)
         normalized_bytes = normalize_page(generated_bytes)
